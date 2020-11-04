@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserCreateRequest;
 use App\Http\Requests\UserUpdateReques;
 use App\Models\User\User;
+use App\Repositories\FollowRepository;
 use App\Repositories\PostRepository;
 use App\Repositories\TagRepository;
 use App\Repositories\UserRepository;
@@ -19,6 +20,7 @@ class UserController extends BaseController
     private $userRepository;
     private $postRepository;
     private $tagRepository;
+    private $followRepository;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class UserController extends BaseController
         $this->userRepository = app(UserRepository::class);
         $this->postRepository = app(PostRepository::class);
         $this->tagRepository = app(TagRepository::class);
+        $this->followRepository = app(FollowRepository::class);
     }
 
     /**
@@ -117,13 +120,19 @@ class UserController extends BaseController
         $userPosts = $this->postRepository->getPreviewPostsListByUser($id, 10);
         $follow_count = $this->followRepository->countFollowToByUser($id);
         $follow_from_count = $this->followRepository->countFollowFromByUser($id);
+        $tags_to_post = [];
+        if(!empty($userPosts)){
+            $tags_to_post = $this->tagRepository->getTagsToPosts($userPosts->collect()->all());
+        }
+
 
         return view('user.show', compact(
             'userItem',
             'roles',
             'userPosts',
             'follow_count',
-            'follow_from_count'
+            'follow_from_count',
+            'tags_to_post'
         ));
     }
 

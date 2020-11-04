@@ -32,7 +32,7 @@ class PostController extends BaseController
     {
         parent::__construct();
 
-        $this->middleware('auth')->except('show');
+        $this->middleware('auth')->except(['show', 'postsByTag']);
 
         $this->postRepository = app(PostRepository::class);
         $this->followRepository = app(FollowRepository::class);

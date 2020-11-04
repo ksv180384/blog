@@ -63,7 +63,7 @@
                                 <div class="tab-content">
                                     <div class="tab-pane" id="activity">
                                         @foreach($userPosts as $post)
-                                            {{ view('blog.post.post_list_item', compact('post')) }}
+                                            {{ view('blog.post.post_list_item', compact('post', 'tags_to_post')) }}
                                         @endforeach
 
                                         <hr>
