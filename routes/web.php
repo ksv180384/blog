@@ -23,11 +23,11 @@ Route::get('/', 'IndexController@index')->name('index');
 // Профиль пользователя
 Route::group(['namespace' => 'User', 'prefix' => 'users'], function(){
     //$methods = ['index', 'edit', 'store', 'update', 'create']; // Используемые методы
-    $methods = ['index', 'show']; // Используемые методы
+    $methods = ['index', 'show', 'update', 'edit']; // Используемые методы
     Route::resource('profile', 'ProfileController')
         ->only($methods)
         ->names('profile');
-    Route::post('profile/updateProfile', 'ProfileController@updateProfile')->name('profile.updateProfile');
+    //Route::post('profile/updateProfile', 'ProfileController@update')->name('profile.updateProfile');
     Route::post('profile/updateAvatar', 'ProfileController@updateAvatar')->name('profile.updateAvatar');
 
 
@@ -52,7 +52,7 @@ Route::group(['namespace' => 'Blog', 'prefix' => 'blog'], function (){
     // Лайк посту
     Route::post('post/like-add/{id}', 'PostController@addLike')->name('post.like-add');
     // Удаляет лайк посту
-    Route::post('post/like-remove/{id}', 'PostController@removeLike')->name('post.like-remove');
+    Route::post('post/like-remove/{post_id}', 'PostController@removeLike')->name('post.like-remove');
 
     $methods = ['create', 'store', 'edit', 'update', 'show'];
     Route::resource('post', 'PostController')
@@ -61,7 +61,7 @@ Route::group(['namespace' => 'Blog', 'prefix' => 'blog'], function (){
 
     Route::group(['prefix' => 'posts'], function (){
         // Отслеживание(подписка на посты) постов
-        Route::get('follow', 'FallowController@list')->name('follow');
+        Route::get('follow', 'FallowController@index')->name('follow');
         Route::get('tag/{id}', 'PostController@postsByTag')->name('post.tag');
 
         Route::post('follow/add', 'FallowController@add')->name('follow.add');

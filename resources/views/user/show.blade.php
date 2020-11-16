@@ -12,11 +12,11 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-xs-12 col-sm-12 col-md-6">
-                        <h5>{{ $userItem->email }}</h5>
+                        <h5>{{ $user->email }}</h5>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-6">
                         <div class="float-right">
-                            {{ Breadcrumbs::render('user', $userItem) }}
+                            {{ Breadcrumbs::render('user', $user) }}
                         </div>
                     </div>
                 </div>
@@ -34,15 +34,26 @@
                             <div class="card-body box-profile">
                                 <div class="text-center">
                                     <div class="profile-user-img avatar-circle img-fluid img-circle js-user-avatar"
-                                         style="background-image: url({{ $userItem->avatar }})"
+                                         style="background-image: url({{ Storage::url($user->avatar) }})"
                                          alt="User profile picture">
 
                                     </div>
                                 </div>
 
-                                <h3 class="profile-username text-center">{{ $userItem->name }}</h3>
+                                <h3 class="profile-username text-center">{{ $user->name }}</h3>
 
-                                <p class="text-muted text-center js-role-name-value">{{ $userItem->role_name }}</p>
+                                <p class="text-muted text-center js-role-name-value">{{ $user->role_name }}</p>
+
+                                <ul class="list-group list-group-unbordered mb-3">
+                                    <li class="list-group-item">
+                                        <strong>Подписчиков</strong> <a class="float-right" id="followTo">
+                                            {{ $user->followToCount }}
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Подписан</strong> <a class="float-right">{{ $user->followFromCount }}</a>
+                                    </li>
+                                </ul>
 
                             </div>
                             <!-- /.card-body -->
@@ -63,7 +74,7 @@
                                 <div class="tab-content">
                                     <div class="tab-pane" id="activity">
                                         @foreach($userPosts as $post)
-                                            {{ view('blog.post.post_list_item', compact('post', 'tags_to_post')) }}
+                                            {{ view('blog.post.post_list_item', compact('post')) }}
                                         @endforeach
 
                                         <hr>
@@ -77,13 +88,22 @@
 
                                         <ul class="list-group list-group-unbordered mb-3">
                                             <li class="list-group-item">
-                                                <strong>Email</strong> <a class="float-right">{{ $userItem->email }}</a>
+                                                <strong>Email</strong> <span class="float-right">{{ $user->email }}</span>
                                             </li>
                                             <li class="list-group-item">
-                                                <strong>Пол</strong> <a class="float-right">{{ $userItem->sex_title }}</a>
+                                                <strong>Имя</strong> <span class="d-block">{{ $user->name }}</span>
                                             </li>
                                             <li class="list-group-item">
-                                                <strong>О себе</strong> <a class="d-block">{{ $userItem->description }}</a>
+                                                <strong>Пол</strong> <span class="float-right">{{ $user->sexData->title }}</span>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <strong>Дата рождения</strong> <span class="d-block">{{ $user->birthday }}</span>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <strong>О себе</strong> <span class="d-block">{{ $user->description }}</span>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <strong>Место проживания</strong> <span class="d-block">{{ $user->residence }}</span>
                                             </li>
                                         </ul>
 

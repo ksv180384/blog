@@ -12,16 +12,16 @@ $(document).ready(function (e) {
             data: {id: thisEl.data('id')}
         })
             .then(function (response) {
-                if(response.data.success == 'N'){
-                    toastr.error(response.data.message);
-                    return true;
-                }
                 $('.js-role-name-value').text(response.data.role);
                 thisBlock.remove();
                 toastr.success(response.data.message);
             })
             .catch(function (error) {
-                toastr.error(error.message);
+                if(error.response){
+                    toastr.error(errorsToString(error.response.data));
+                    return true;
+                }
+                toastr.error('Ошибка при удалении.');
             });
     });
 });

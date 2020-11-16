@@ -54,16 +54,16 @@
                                 @foreach($follows_list as $follow)
                                     <div class="block p-2 js-user-item">
                                         <div class="div-img-circle mr-2"
-                                             style="background-image: url({{ $follow->avatar }})"></div>
+                                             style="background-image: url({{ Storage::url($follow->userTo->avatar) }})"></div>
                                         <span class="username">
-                                            <a href="{{ route('profile.show', $follow->id) }}">
-                                                {{ $follow->name }}
+                                            <a href="{{ route('profile.show', $follow->userTo->id) }}">
+                                                {{ $follow->userTo->name }}
                                             </a>
                                             <span class="float-right">
-                                                <form action="{{ route('follow.destroy', $follow->follow_id) }}"
+                                                <form action="{{ route('follow.destroy', $follow->id) }}"
                                                       method="post" class="js-form-follow-remove">
                                                     @csrf
-                                                    <button type="submit" class="btn btn-tool">
+                                                    <button type="submit" class="btn btn-tool" title="Отписаться">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 </form>

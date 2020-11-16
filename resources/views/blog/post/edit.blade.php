@@ -54,7 +54,7 @@
                                     <div class="list-group list-group-unbordered mb-3">
                                         <div class="row">
                                             <div class="col-sm-12 col-md-12 col-lg-3 min-h-240">
-                                                <div class="add-post-img js-post-img" style="background-image: url({{ $post->img }})">
+                                                <div class="add-post-img js-post-img" style="background-image: url({{ Storage::url($post->img) }})">
                                                     <input type="file" name="img" accept="image/*" class="img-input" id="imgPost">
                                                 </div>
                                             </div>
@@ -97,7 +97,8 @@
                                                         name="tags[]">
                                                     @foreach($tags_list as $tag)
                                                         <option value="{{ $tag->id }}"
-                                                                {{ in_array($tag->id, $tags_to_post) ? 'selected' : '' }}>
+                                                                {{ $post->tags->contains('id', $tag->id) ? 'selected' : '' }}
+                                                        >
                                                             {{ $tag->title }}
                                                         </option>
                                                     @endforeach

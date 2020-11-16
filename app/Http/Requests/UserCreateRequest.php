@@ -27,23 +27,37 @@ class UserCreateRequest extends FormRequest
         return [
             'name' => 'min:2|max:100',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:6|confirmed',
             'avatar' => '',
-            'avatar_select' => '',
             'sex' => 'nullable|exists:user_sex,id',
             'birthday' => 'date',
-            'residence' => '',
             'description' => 'max:5000',
-            'view_name' => 'digits::1',
-            'view_sex' => 'digits::1',
-            'view_birthday' => 'digits::1',
-            'view_residence' => 'digits::1',
-            'view_description' => 'digits::1',
-            'show_yar_birthday' => 'digits::1',
-            'view_sub_characters' => 'digits::1',
-            'date_active' => 'date',
             'adm' => 'digits::1',
-            'status' => 'exists:user_status,id',
+            'user_role' => 'exists:roles,id',
+        ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'name.min' => 'Поле "Имя" должно содержать не менее 2-х символов.',
+            'name.max' => 'Поле "Имя" должно содержать не более 255 символов.',
+            'email.unique' => 'Пользователь с таким email уже существует.',
+            'email.email' => 'Вы ввели некорректный email.',
+            'password.min' => 'Пароль должен быть не короче 6 символов.',
+            'password.confirmed' => 'Неверно подтвержден пароль.',
+            'sex.exists' => 'Неверно задан пол.',
+            'birthday.date' => 'Неверная дата рождения',
+            'residence.min' => 'Поле "Место проживания" должно содержать не менее 2-х символов.',
+            'residence.max' => 'Поле "Место проживания" должно содержать не более 5000 символов.',
+            'description.max' => 'Поле "о себе" должно содержать не более 5000 символов.',
+            'user_role.exists' => 'Неверно задана роль пользователя.',
+            'adm.digits' => 'Неверно задан adm',
         ];
     }
 }

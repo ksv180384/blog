@@ -24,48 +24,7 @@ class UserRepository extends CoreRepository
      */
     public function getUser($id){
 
-        $columns = [
-            'users.id',
-            'users.name',
-            'users.email',
-            'users.email_verified_at',
-            'users.avatar',
-            'users.avatar_select',
-            'users.sex',
-            'users.birthday',
-            'users.residence',
-            'users.description',
-            'users.view_name',
-            'users.view_sex',
-            'users.view_birthday',
-            'users.view_residence',
-            'users.view_description',
-            'users.show_yar_birthday',
-            'users.view_sub_characters',
-            'users.date_active',
-            'users.date_registration',
-            'users.adm',
-            'users.status',
-            'users.created_at',
-            'users.updated_at',
-            'user_sex.title AS sex_title',
-            'user_sex.alias AS sex_alias',
-            'user_status.title AS status_title',
-            'user_status.alias AS status_alias',
-            'roles.id AS role_id',
-            'roles.name AS role_name',
-        ];
-
-        $user = $this->startConditions()
-            ->select($columns)
-            ->leftJoin('user_sex', 'user_sex.id', '=', 'users.sex')
-            ->leftJoin('user_status', 'user_status.id', '=', 'users.status')
-            ->leftJoin('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
-            ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->where('users.id', '=', $id)
-            //->toBase()
-            ->first();
-
+        $user = User::where('id', '=', $id)->first();
         return $user;
     }
 
@@ -73,28 +32,17 @@ class UserRepository extends CoreRepository
      * @param int $paginate - количествл получаемых даписей
      * @return \Illuminate\Support\Collection
      */
-    public function getUsersList($paginate = 5){
-        //$users = User::paginate($paginate);
+    public function getUsersList($paginate = 10){
+        /*
         $columns = [
             'users.id',
             'users.name',
             'users.email',
-            'users.email_verified_at',
             'users.avatar',
-            'users.avatar_select',
             'users.sex',
             'users.birthday',
             'users.residence',
             'users.description',
-            'users.view_name',
-            'users.view_sex',
-            'users.view_birthday',
-            'users.view_residence',
-            'users.view_description',
-            'users.show_yar_birthday',
-            'users.view_sub_characters',
-            'users.date_active',
-            'users.date_registration',
             'users.adm',
             'users.status',
             'users.created_at',
@@ -115,6 +63,8 @@ class UserRepository extends CoreRepository
             ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
             ->orderBy('users.id', 'ASC')
             ->paginate($paginate);
+        */
+        $users = $this->startConditions()->paginate($paginate);
 
         return $users;
     }

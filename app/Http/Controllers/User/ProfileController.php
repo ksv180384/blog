@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Http\Requests\UserAvatarUpdateRequest;
 use App\Http\Requests\UserUpdateReques;
+use App\Models\User\User;
+use App\Models\User\UserSex;
 use App\Repositories\FollowRepository;
 use App\Repositories\PostRepository;
 use App\Repositories\TagRepository;
@@ -36,18 +39,14 @@ class ProfileController extends BaseController
      */
     public function index()
     {
-        $user = $this->userRepository->getUser(\Auth::id());
-        $userSexList = $this->userRepository->getSexUserList();
-        $follow_count = $this->followRepository->countFollowToByUser(\Auth::id());
-        $follow_from_count = $this->followRepository->countFollowFromByUser(\Auth::id());
+        $userSexList = UserSex::all();
+        $user = \Auth::user();
 
         $title = 'Мой профиль';
 
         return view('user.profile.profile', compact(
             'user',
             'userSexList',
-            'follow_count',
-            'follow_from_count',
             'title'
         ));
     }
@@ -81,30 +80,22 @@ class ProfileController extends BaseController
      */
     public function show($id)
     {
-        $id = (int)$id;
-        //
-        //$roles = Role::orderBy('id', 'ASC')->get();
-        $user_item = $this->userRepository->getUser($id);
-        $user_posts = $this->postRepository->getPreviewPostsListByUser($id, \Auth::id(), 10);
-        $follow_count = $this->followRepository->countFollowToByUser($id);
-        $follow_from_count = $this->followRepository->countFollowFromByUser($id);
+        $user_item = User::findOrFail($id);
+        $posts = $user_item->posts()->paginate(10);
+        $follow_count = $user_item->followToCount;
+        $follow_from_count = $user_item->followFromCount;
 
         $follow_check = [];
         if(\Auth::check()){
-            $follow_check = $this->followRepository->followCheck(\Auth::user()->id, $id);
-        }
-        $tags_to_post = [];
-        if(!empty($user_posts)){
-            $tags_to_post = $this->tagRepository->getTagsToPosts($user_posts->collect()->all());
+            $follow_check = $this->followRepository->followCheck(\Auth::id(), $user_item->id);
         }
 
         $title = 'Профиль пользователя ' . $user_item->name;
 
         return view('user.profile.show', compact(
-            'user_posts',
+            'posts',
             'user_item',
             'follow_check',
-            'tags_to_post',
             'follow_count',
             'follow_from_count',
             'title'
@@ -125,68 +116,45 @@ class ProfileController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  App\Http\Requests\UserUpdateReques $request
-     * @param  int  $id
+     * @param  UserUpdateReques $request
      * @return \Illuminate\Http\Response
      */
     public function update(UserUpdateReques $request, $id)
     {
-        //
-
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  App\Http\Requests\UserUpdateReques $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function updateProfile(UserUpdateReques $request)
-    {
-        //
-
-        $id = \Auth::id();
         $data = $request->all();
-        $user = $this->userRepository->getEdit($id);
-        /*
-        if(empty($data['slug'])){
-            $data['slug'] = Str::slug($data['title']);
-        }
-        */
-        // В Model/BlogCategory не обходимо указать поля, которым разрешено массовое присвоение
-        //$result = $item->fill($data)->save();
+        $user = \Auth::user();
+
         $result = $user->update($data);
         if(!$result){
-            return response()->json(["success" => "N", "message" => "Ошибка при сохранении данных. Попробуйте позже."]);
+            return response()->json(['message' => 'Ошибка при сохранении данных. Попробуйте позже.'], 404);
         }
-        return response()->json(["success" => "Y", "message" => "Данные успешно сохранены"]);
+        return response()->json(['message' => 'Данные успешно сохранены']);
+
     }
 
     /**
      * Загружает аватар пользователя
      *
-     * @param  App\Http\Requests $request
-     * @param  int  $id
+     * @param  Request $request
      * @return \Illuminate\Http\Response
      */
-    public function updateAvatar(Request $request)
+    public function updateAvatar(UserAvatarUpdateRequest $request)
     {
-        $id = \Auth::id();
-        $user = $this->userRepository->getEdit($id);
+
+        $user = \Auth::user();
 
         $path = 'uploads/users/' . \Auth::id() . '/avatar';
 
-        $result = $request->file('userAvatar')->store($path, 'public');
+        $result = $request->file('avatar')->store($path, 'public');
 
         \Storage::delete('public/'.$user->getOriginal()['avatar']);
 
         $result_update = $user->update(['avatar' => $result]);
 
         if(!$result_update){
-            return response()->json(["success" => "N", "message" => "Ошибка при сохранении аватара. Попробуйте позже."]);
+            return response()->json(['message' => 'Ошибка при сохранении аватара. Попробуйте позже.']);
         }
-        return response()->json(["success" => "Y", "message" => "Данные успешно сохранены", "url" => asset('/storage/' . $result)]);
+        return response()->json(['message' => 'Данные успешно сохранены', 'url' => asset('/storage/' . $result)]);
     }
 
     /**

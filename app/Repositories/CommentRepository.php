@@ -23,24 +23,8 @@ class CommentRepository extends CoreRepository
      * @return mixed
      */
     public function getCommentsByPost(int $post_id, $paginate = 10){
-        $columns = [
-            'comments.id',
-            'comments.user_id',
-            'comments.comment',
-            'comments.created_at',
-            'comments.updated_at',
-            'users.name',
-            'users.avatar',
-            'users.avatar_select',
-        ];
 
-        $comments = Comment::select($columns)
-            ->join('users', 'users.id', '=', 'comments.user_id')
-            ->where('post_id', '=', $post_id)->paginate($paginate);
-
-        foreach ($comments as $k => $comment){
-            $comments[$k]->avatar = User::activeAvatar($comment->avatar);
-        }
+        $comments = $this->startConditions()->where('post_id', $post_id)->with('user')->paginate($paginate);
         return $comments;
     }
 

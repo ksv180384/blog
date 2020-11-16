@@ -23,22 +23,21 @@ class CommentController extends BaseController
     //
     public function store(BlogCommentRequest $request){
 
-        $Comment = new Comment();
-        $Comment->user_id = $request->user_id;
-        $Comment->post_id = $request->post_id;
-        $Comment->comment = $request->comment;
-        if(!$Comment->save()){
-            return response()->json(["success" => "N", "message" => "Ошибка при добавлении комментария."]);
+        //$Comment = new Comment();
+        if(!$comment = Comment::create([
+            'user_id' => $request->user_id,
+            'post_id' => $request->post_id,
+            'comment' => $request->comment,
+        ])){
+            return response()->json(['message' => 'Ошибка при добавлении комментария.'], 404);
         }
 
-        $comments_count = $this->commentRepository->countByPost($Comment->post_id);
-        $comment = $this->commentRepository->getComment($Comment->id);
+        $comments_count = $this->commentRepository->countByPost($comment->post_id);
 
         return response()->json([
-            "success" => "Y",
-            "message" => "Комментарий успешно добавлен.",
-            "html" => view('blog.post.comment_item', compact('comment'))->render(),
-            "count_messages" => $comments_count,
+            'message' => 'Комментарий успешно добавлен.',
+            'html' => view('blog.post.comment_item', compact('comment'))->render(),
+            'count_messages' => $comments_count,
             ]);
     }
 }

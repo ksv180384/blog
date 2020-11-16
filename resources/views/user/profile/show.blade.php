@@ -30,7 +30,7 @@
                             <div class="card-body box-profile">
                                 <div class="text-center">
                                     <div class="profile-user-img avatar-circle img-fluid img-circle js-user-avatar"
-                                         style="background-image: url({{ $user_item->avatar }})"
+                                         style="background-image: url({{ Storage::url($user_item->avatar) }})"
                                          alt="User profile picture">
 
                                     </div>
@@ -42,14 +42,14 @@
 
                                 <ul class="list-group list-group-unbordered mb-3">
                                     <li class="list-group-item">
-                                        <strong>Подписчиков</strong> <a class="float-right" id="followTo">{{ $follow_count }}</a>
+                                        <strong>Подписчиков</strong> <a class="float-right" id="followTo">{{ $user_item->followToCount }}</a>
                                     </li>
                                     <li class="list-group-item">
-                                        <strong>Подписан</strong> <a class="float-right">{{ $follow_from_count }}</a>
+                                        <strong>Подписан</strong> <a class="float-right">{{ $user_item->followFromCount }}</a>
                                     </li>
                                 </ul>
 
-                                @if(Auth::check() && $user_item->id != Auth::user()->id)
+                                @if(Auth::check() && $user_item->id != Auth::id())
                                     @if(!$follow_check)
                                         {{ view('user.profile.btn.btn_follow_add', compact('user_item')) }}
                                     @else
@@ -75,13 +75,13 @@
                             <div class="card-body">
                                 <div class="tab-content">
                                     <div class="tab-pane" id="activity">
-                                        @foreach($user_posts as $post)
-                                            {{ view('blog.post.post_list_item', compact('post', 'tags_to_post')) }}
+                                        @foreach($posts as $post)
+                                            {{ view('blog.post.post_list_item', compact('post')) }}
                                         @endforeach
 
                                         <hr>
 
-                                        {{ $user_posts->links() }}
+                                        {{ $posts->links() }}
                                     </div>
                                     <!-- /.tab-pane -->
 

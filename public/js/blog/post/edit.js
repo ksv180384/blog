@@ -44,21 +44,13 @@ $(document).ready(function(){
         })
             .then(function (response) {
                 thisBtn.prop('disabled', false);
-                if(response.data.success != 'Y'){
-                    toastr.error(response.data.message);
-                    return true;
-                }
                 toastr.success(response.data.message);
                 //location.href = response.data.redirect
             })
             .catch(function (error) {
                 thisBtn.prop('disabled', false);
                 if(error.response){
-                    var error_text = '';
-                    $.each(error.response.data.errors, function (index, val) {
-                        error_text += val[0];
-                    });
-                    toastr.error(error.response.data.message + ' ' + error_text);
+                    toastr.error(errorsToString(error.response.data));
                     return true;
                 }
 

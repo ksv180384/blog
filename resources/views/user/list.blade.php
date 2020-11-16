@@ -47,8 +47,6 @@
                             <th>роль</th>
                             <th>дата регистрации</th>
                             <th>дата активации</th>
-                            <th>created_at</th>
-                            <th>updated_at</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -87,16 +85,14 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div style="background-image: url({{ $userItem->avatar }})"
+                                    <div style="background-image: url({{ Storage::url($userItem->avatar) }})"
                                          class="img-circle avatar-circle-mini elevation-2 js-user-avatar"></div>
                                 </td>
                                 <td><a href="{{ route('user.show', $userItem->id) }}">{{ $userItem->email }}</a></td>
                                 <td>{{ $userItem->name }}</td>
-                                <td>{{ $userItem->role_name }}</td>
-                                <td>{{ $userItem->date_registration }}</td>
-                                <td>{{ $userItem->date_active }}</td>
-                                <td>{{ $userItem->created_at }}</td>
-                                <td>{{ $userItem->updated_at }}</td>
+                                <td>{{ $userItem->role[0]->name }}</td>
+                                <td>{{ $userItem->created_at->format('H:i d.m.Y') }}</td>
+                                <td>{{ $userItem->email_verified_at->format('H:i d.m.Y') }}</td>
                             </tr>
                         @endforeach
                         </tbody>

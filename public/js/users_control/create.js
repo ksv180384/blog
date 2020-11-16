@@ -1,13 +1,14 @@
 $(document).ready(function () {
-    // Сохраняет данные роли
+
+    // Создаем пользователя
     $('body').on('click', '#btnUserCreate', function(e){
         e.preventDefault();
 
-        var thisBtn = $(this);
+        var btn = $(this);
 
         var $form = $('#formUserCreate');
 
-        thisBtn.prop('disabled', true);
+        btn.prop('disabled', true);
 
         axios({
             method: $form.attr('method'),
@@ -15,21 +16,14 @@ $(document).ready(function () {
             data: $form.serialize()
         })
             .then(function (response) {
-                thisBtn.prop('disabled', false);
-                if(response.data.success == 'N'){
-                    toastr.error(response.data.message);
-                    return true;
-                }
+                btn.prop('disabled', false);
                 toastr.success(response.data.message);
+                document.location.href = response.data.redirect;
             })
             .catch(error => {
-                thisBtn.prop('disabled', false);
+                btn.prop('disabled', false);
                 if(error.response){
-                    var error_text = '';
-                    $.each(error.response.data.errors, function (index, val) {
-                        error_text += val[0];
-                    });
-                    toastr.error(error.response.data.message + ' ' + error_text);
+                    toastr.error(errorsToString(error.response.data));
                     return true;
                 }
 

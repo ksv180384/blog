@@ -30,15 +30,11 @@ class FallowController extends BaseController
      *
      * @return array \Illuminate\Http\Response
      */
-    public function list()
+    public function index()
     {
         //
         $posts = $this->followRepository->getFollowsPostsByUser(\Auth::user()->id, 10) ?: [];
         $follows_list = $this->followRepository->getFollowsByUser(\Auth::user()->id) ?: [];
-        $tags_to_post = [];
-        if(!empty($posts)){
-            $tags_to_post = $this->tagRepository->getTagsToPosts($posts->collect()->all());
-        }
 
         $title = 'Подписан';
 

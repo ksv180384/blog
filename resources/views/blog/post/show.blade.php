@@ -27,28 +27,29 @@
                         <div class="card-body">
                             <div class="post clearfix">
                                 <div class="user-block">
-                                    <div class="div-img-circle" style="background-image: url({{ $post->avatar }})"></div>
+                                    <div class="div-img-circle" style="background-image: url({{ Storage::url($post->user->avatar) }})"></div>
                                     <span class="username">
-                                        <a href="{{ route('profile.show', $post->user_id) }}">{{ $post->name }}</a>
+                                        <a href="{{ route('profile.show', $post->user->id) }}">{{ $post->user->name }}</a>
                                     </span>
                                     <span class="description">
                                         @if($post->published_at)
                                             <strong>
-                                                {{ \Carbon\Carbon::createFromFormat(
-                                                            'Y-m-d H:i:s',
-                                                            $post->published_at
-                                                    )->format('H:i') }}
+                                                {{ $post->published_at->format('H:i') }}
                                             </strong>
-                                            {{ \Carbon\Carbon::createFromFormat(
-                                                            'Y-m-d H:i:s',
-                                                            $post->published_at
-                                                    )->format('d.m.Y') }}
+                                            {{ $post->published_at->format('d.m.Y') }}
                                         @else
                                             <span class="text-danger">неопубликованно</span>
                                         @endif
                                     </span>
                                 </div>
                                 <!-- /.user-block -->
+
+                                @if($post->getAttributes()['img'])
+                                    <div class="post-excerpt-img" style="background-image: url({{  Storage::url($post->img) }});">
+
+                                    </div>
+                                @endif
+
                                 <p>
                                     {{ $post->content }}
                                 </p>
@@ -61,25 +62,25 @@
                                             <a href="{{ route('post.like-remove', $like->id) }}"
                                                class="link-black text-sm text-success js-like">
                                                 <i class="far fa-thumbs-up mr-1"></i>
-                                                Нравится (<span class="js-like-count-el">{{ $count_like }}</span>)
+                                                Нравится (<span class="js-like-count-el">{{ $post->likesCount }}</span>)
                                             </a>
                                         @else
                                             <a href="{{ route('post.like-add', $post->id) }}"
                                                class="link-black text-sm js-like">
                                                 <i class="far fa-thumbs-up mr-1"></i>
-                                                Нравится (<span class="js-like-count-el">{{ $count_like }}</span>)
+                                                Нравится (<span class="js-like-count-el">{{ $post->likesCount }}</span>)
                                             </a>
                                         @endif
                                     @else
                                         <span class="text-sm">
                                             <i class="far fa-thumbs-up mr-1"></i>
-                                            Нравится (<span class="js-like-count-el">{{ $count_like }}</span>)
+                                            Нравится (<span class="js-like-count-el">{{ $post->likesCount }}</span>)
                                         </span>
                                     @endif
                                 </div>
 
                                 <div class="float-right ml-2">
-                                    @foreach($tags as $tag)
+                                    @foreach($post->tags as $tag)
                                         <span class="badge bg-info">
                                         <a href="{{ route('post.tag', $tag->id) }}">{{ $tag->title }}</a>
                                     </span>
@@ -92,11 +93,11 @@
 
                     <div class="card">
                         <div class="content-header">
-                            Комментарии (<span id="countComments">{{ $comments_count }}</span>)
+                            Комментарии (<span id="countComments">{{ $post->commentsCount }}</span>)
                         </div>
                         <div class="card-body">
                             <div id="commentsList" class="">
-                                @foreach($comments as $comment)
+                                @foreach($post->comments as $comment)
                                     @include('blog.post.comment_item', ['comment' => $comment])
                                 @endforeach
                             </div>

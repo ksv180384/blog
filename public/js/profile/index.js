@@ -4,10 +4,10 @@ $(document).ready(function(){
     $('body').on('submit', '#formAddUserData', function(e){
         e.preventDefault();
 
-        var thisBtn = $('#btnSaveUserData');
+        var btn = $('#btnSaveUserData');
         var $form = $(this);
 
-        thisBtn.prop('disabled', true);
+        btn.prop('disabled', true);
 
         axios({
             method: $form.attr('method'),
@@ -15,17 +15,13 @@ $(document).ready(function(){
             data: $form.serialize()
         })
             .then(function (response) {
-                thisBtn.prop('disabled', false);
+                btn.prop('disabled', false);
                 toastr.success('Профиль успешно отредактирован.');
             })
             .catch(function (error) {
-                thisBtn.prop('disabled', false);
+                btn.prop('disabled', false);
                 if(error.response){
-                    var error_text = '';
-                    $.each(error.response.data.errors, function (index, val) {
-                        error_text += val[0];
-                    });
-                    toastr.error(error.response.data.message + ' ' + error_text);
+                    toastr.error(errorsToString(error.response.data));
                     return true;
                 }
 
@@ -42,7 +38,7 @@ $(document).ready(function(){
         if(!this.files[0]){
             return true;
         }
-        data.append('userAvatar', this.files[0]);
+        data.append('avatar', this.files[0]);
 
         axios({
             method: $form.attr('method'),
@@ -50,11 +46,15 @@ $(document).ready(function(){
             data: data
         })
             .then(function (response) {
-                console.log(response.data.url);
                 $('.js-user-avatar').css({'background-image': 'url('+ response.data.url +')'});
 
             })
             .catch(function (error) {
+                if(error.response){
+                    toastr.error(errorsToString(error.response.data));
+                    return true;
+                }
+
                 toastr.error('Ошибка при загрузке файла.');
             });
     });

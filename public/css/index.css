@@ -107,6 +107,27 @@
     display: inline-block
 }
 
+.btn-like{
+    display: inline-block;
+}
+
+.btn-like-add{
+    display: inline-block;
+}
+
+.btn-like-remove{
+    display: none;
+}
+
+.like-active>.btn-like-add{
+    display: none;
+}
+
+.like-active>.btn-like-remove{
+    display: inline-block;
+}
+
+
 .float-right-md{
     float: right;
 }

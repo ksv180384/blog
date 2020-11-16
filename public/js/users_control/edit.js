@@ -1,13 +1,13 @@
 $(document).ready(function () {
-    // Сохраняет данные роли
+    // Сохраняет данные пользователя
     $('body').on('click', '#btnUserUpdate', function(e){
         e.preventDefault();
 
-        var thisBtn = $(this);
+        var btn = $(this);
 
         var $form = $('#formUserUpdate');
 
-        thisBtn.prop('disabled', true);
+        btn.prop('disabled', true);
 
         axios({
             method: $form.attr('method'),
@@ -15,21 +15,13 @@ $(document).ready(function () {
             data: $form.serialize()
         })
         .then(function (response) {
-            thisBtn.prop('disabled', false);
-            if(response.data.success == 'N'){
-                toastr.error(response.data.message);
-                return true;
-            }
+            btn.prop('disabled', false);
             toastr.success(response.data.message);
         })
         .catch(error => {
-            thisBtn.prop('disabled', false);
+            btn.prop('disabled', false);
             if(error.response){
-                var error_text = '';
-                $.each(error.response.data.errors, function (index, val) {
-                    error_text += val[0];
-                });
-                toastr.error(error.response.data.message + ' ' + error_text);
+                toastr.error(errorsToString(error.response.data));
                 return true;
             }
 
@@ -49,15 +41,16 @@ $(document).ready(function () {
             data: $form.serialize()
         })
         .then(function (response) {
-            if(response.data.success == 'N'){
-                toastr.error(response.data.message);
-                return true;
-            }
             $('.js-role-name-value').text(response.data.role);
             toastr.success(response.data.message);
         })
-        .catch(function (error) {
-            toastr.error(error.message);
+        .catch(error => {
+            if(error.response){
+                toastr.error(errorsToString(error.response.data));
+                return true;
+            }
+
+            toastr.error('Ошибка при сохранении.');
         });
     });
 
@@ -65,11 +58,11 @@ $(document).ready(function () {
     $('body').on('click', '#btnChangePassword', function(e){
         e.preventDefault();
 
-        var thisBtn = $(this);
+        var btn = $(this);
 
         var $form = $('#formChangePassword');
 
-        thisBtn.prop('disabled', true);
+        btn.prop('disabled', true);
 
         axios({
             method: $form.attr('method'),
@@ -77,23 +70,15 @@ $(document).ready(function () {
             data: $form.serialize()
         })
             .then(function (response) {
-                thisBtn.prop('disabled', false);
-                $('#formChangePassword').find('input').val('');
-                if(response.data.success == 'N'){
-                    toastr.error(response.data.message);
-                    return true;
-                }
+                btn.prop('disabled', false);
+                $('#formChangePassword').find('input:not(:hidden)').val('');
                 toastr.success(response.data.message);
             })
             .catch(error => {
-                thisBtn.prop('disabled', false);
+                btn.prop('disabled', false);
                 $('#formChangePassword').find('input[type="password"]').val('');
                 if(error.response){
-                    var error_text = '';
-                    $.each(error.response.data.errors, function (index, val) {
-                        error_text += val[0];
-                    });
-                    toastr.error(error.response.data.message + ' ' + error_text);
+                    toastr.error(errorsToString(error.response.data));
                     return true;
                 }
 

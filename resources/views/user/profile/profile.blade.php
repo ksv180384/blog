@@ -28,7 +28,7 @@
                             <div class="card-body box-profile">
                                 <div class="text-center">
                                     <div class="profile-user-img avatar-circle img-fluid img-circle js-user-avatar"
-                                         style="background-image: url({{ $user->avatar }})"
+                                         style="background-image: url({{ Storage::url($user->avatar) }})"
                                          alt="User profile picture">
 
                                     </div>
@@ -40,10 +40,10 @@
 
                                 <ul class="list-group list-group-unbordered mb-3">
                                     <li class="list-group-item">
-                                        <strong>Подписчиков</strong> <a class="float-right">{{ $follow_count }}</a>
+                                        <strong>Подписчиков</strong> <a class="float-right">{{ $user->followToCount }}</a>
                                     </li>
                                     <li class="list-group-item">
-                                        <strong>Подписан</strong> <a class="float-right">{{ $follow_from_count }}</a>
+                                        <strong>Подписан</strong> <a class="float-right">{{ $user->followFromCount }}</a>
                                     </li>
                                 </ul>
 
@@ -79,14 +79,14 @@
                                                           id="formAddUserAvatar">
                                                         @csrf
                                                         <input type="file" id="inputUserAvatar">
-                                                        <div class="user-add-avatar js-user-avatar" style="background-image: url({{ $user->avatar }})"></div>
+                                                        <div class="user-add-avatar js-user-avatar" style="background-image: url({{ Storage::url($user->avatar) }})"></div>
                                                     </form>
                                                 </div>
                                             </div>
                                             <div class="col">
-                                                <form method="post" action="{{ route('profile.updateProfile') }}" id="formAddUserData" class="">
-
+                                                <form method="post" action="{{ route('profile.update', Auth::id()) }}" id="formAddUserData" class="">
                                                     @csrf
+                                                    @method('PATCH')
                                                     <div class="form-group">
                                                         <label for="inputName">Имя</label>
                                                         <input type="text"
@@ -119,8 +119,14 @@
                                                         </select>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label for="inputName2">Name</label>
-                                                        <input type="text" class="form-control" id="inputName2" placeholder="Name">
+                                                        <label for="inputBirthday">Дата рождения</label>
+                                                        <input type="text"
+                                                               class="form-control"
+                                                               name="birthday"
+                                                               id="inputBirthday"
+                                                               placeholder="Дата рождения"
+                                                               value="{{ $user->birthday }}"
+                                                        >
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="inputDescription">О себе</label>
@@ -130,8 +136,14 @@
                                                                   placeholder="О себе">{{ $user->description }}</textarea>
                                                     </div>
                                                     <div class="form-group">
-                                                        <label for="inputSkills">Skills</label>
-                                                        <input type="text" class="form-control" id="inputSkills" placeholder="Skills">
+                                                        <label for="inputResidence">Место проживания</label>
+                                                        <input type="text"
+                                                               class="form-control"
+                                                               name="residence"
+                                                               id="inputResidence"
+                                                               placeholder="Место проживания"
+                                                               value="{{ $user->residence }}"
+                                                        >
                                                     </div>
 
                                                     <div class="form-group">

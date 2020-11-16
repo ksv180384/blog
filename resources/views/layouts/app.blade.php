@@ -38,34 +38,10 @@
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="/login">
-                        <i class="fas fa-sign-in-alt"></i>
+                        <i class="fas fa-sign-in-alt"></i> Вход
                     </a>
                 </li>
             </ul>
-        @else
-            <? /*
-            <ul class="navbar-nav ml-auto">
-                <!-- Messages Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" href="#">
-                        <i class="far fa-comments"></i>
-                        <span class="badge badge-danger navbar-badge">3</span>
-                    </a>
-                </li>
-                <!-- Notifications Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" href="#">
-                        <i class="far fa-bell"></i>
-                        <span class="badge badge-warning navbar-badge">15</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#">
-                        <i class="fas fa-th-large"></i>
-                    </a>
-                </li>
-            </ul>
-            */?>
         @endguest
     </nav>
     <!-- /.navbar -->
@@ -88,7 +64,7 @@
             @else
             <div class="user-panel mt-3 pb-3 mb-3 d-flex dropdown-toggle text-link dropdown-after-top-user-name" data-toggle="dropdown" aria-expanded="false">
                 <div class="image">
-                    <div style="background-image: url({{ \Auth::user()->avatar }})" class="img-circle avatar-circle-mini elevation-2 js-user-avatar"></div>
+                    <div style="background-image: url({{ Storage::url(\Auth::user()->avatar) }})" class="img-circle avatar-circle-mini elevation-2 js-user-avatar"></div>
                 </div>
                 <div class="info">
                     <span class="d-block">{{ \Auth::user()->name }}</span>

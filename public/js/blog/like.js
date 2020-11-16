@@ -3,7 +3,7 @@ $(document).ready(function(){
     $('body').on('click', '.js-like', function (e) {
         e.preventDefault();
 
-        const thisEl = $(this);
+        const btn = $(this);
         const url = $(this).attr('href');
 
         axios({
@@ -12,26 +12,17 @@ $(document).ready(function(){
         })
             .then(function (response) {
 
-                if(response.data.success != "Y"){
-                    toastr.error(response.data.message);
-                    return true;
-                }
-                thisEl.attr('href', response.data.href);
                 if(response.data.type == 'add'){
-                    thisEl.addClass('text-success');
+                    btn.closest('.btn-like').addClass('like-active');
                 }else{
-                    thisEl.removeClass('text-success');
+                    btn.closest('.btn-like').removeClass('like-active');
                 }
-                thisEl.find('.js-like-count-el').text(response.data.count);
+                btn.closest('.btn-like').find('.js-like-count-el').text(response.data.count);
             })
             .catch(function (error) {
 
                 if(error.response){
-                    let error_text = '';
-                    $.each(error.response.data.errors, function (index, val) {
-                        error_text += val[0];
-                    });
-                    toastr.error(error.response.data.message + ' ' + error_text);
+                    toastr.error(errorsToString(error.response.data));
                     return true;
                 }
 

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Blog;
 
 use App\Http\Requests\PostCreateRequest;
 use App\Http\Requests\PostUpdateRequest;
-use App\Models\Blog\Follows;
 use App\Models\Blog\Like;
 use App\Models\Blog\Post;
 use App\Models\Blog\PostToTag;
@@ -14,14 +13,10 @@ use App\Repositories\FollowRepository;
 use App\Repositories\LikeRepository;
 use App\Repositories\PostRepository;
 use App\Repositories\TagRepository;
-use Carbon\Carbon;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+
 
 class PostController extends BaseController
 {
-    const IMG_PATH = 'uploads/posts';
-
     private $postRepository;
     private $followRepository;
     private $likeRepository;
@@ -54,11 +49,7 @@ class PostController extends BaseController
     public function my()
     {
         //
-        $posts = $this->postRepository->getPreviewPostsListByUser(\Auth::user()->id, \Auth::user()->id,10);
-        $tags_to_post = [];
-        if(!empty($posts)){
-            $tags_to_post = $this->tagRepository->getTagsToPosts($posts->collect()->all());
-        }
+        $posts = $this->postRepository->getPreviewPostsListByUserPublishedAll(\Auth::user()->id, 10);
 
         $title = 'Мои посты';
 
@@ -71,14 +62,8 @@ class PostController extends BaseController
 
     public function postsByTag($tag_id){
 
-        $user_id = \Auth::check() ? \Auth::id() : 0;
-        $posts = $this->postRepository->getPostsListByTag($tag_id, $user_id, 10);
+        $posts = $this->postRepository->getPostsListByTag($tag_id, 10);
         $tag = Tag::where('id', '=', $tag_id)->first();
-
-        $tags_to_post = [];
-        if(!empty($posts)){
-            $tags_to_post = $this->tagRepository->getTagsToPosts($posts->collect()->all());
-        }
 
         $title = 'Посты тега ' . $tag->title;
 
@@ -118,40 +103,43 @@ class PostController extends BaseController
     public function store(PostCreateRequest $request)
     {
         //
-        if(\Auth::user()->id != $request->user_id){
-            return response()->json(["success" => "N", "message" => "Неверно задан пользователь"]);
-        }
-
         $img_path = null;
         if($request->file('img')){
-            if(!$img_path = $request->file('img')->store(self::IMG_PATH, 'public')){
-                return response()->json(["success" => "N", "message" => "Ошибка при записи изображения"]);
+            if(!$img_path = request()->file('img')->store('posts')){
+                return response()->json(['message' => 'Ошибка при записи изображения'], 404);
             }
         }
 
-        \DB::transaction(function() use ($img_path, $request){
-            $Post = Post::create([
-                'user_id' => $request->input('user_id'),
-                'img' => $img_path,
-                'title' => $request->input('title'),
-                'excerpt' => $request->input('excerpt'),
-                'content' => $request->input('content'),
-            ]);
+        try{
+            \DB::transaction(function() use ($img_path, $request){
+                $Post = Post::create([
+                    'user_id' => \Auth::id(),
+                    'img' => $img_path,
+                    'title' => $request->input('title'),
+                    'excerpt' => $request->input('excerpt'),
+                    'content' => $request->input('content'),
+                ]);
 
-            if($request->tags){
-                $tagsToPostList = [];
-                foreach ($request->tags as $tag){
-                    $tagsToPostList[] = [
-                        'post_id' => $Post->id,
-                        'tag_id' => $tag,
-                    ];
+                if($request->tags){
+                    $tagsToPostList = [];
+                    foreach ($request->tags as $tag){
+                        $tagsToPostList[] = [
+                            'post_id' => $Post->id,
+                            'tag_id' => $tag,
+                        ];
+                    }
+                    PostToTag::insert($tagsToPostList);
                 }
-                PostToTag::insert($tagsToPostList);
-            }
 
-        });
+            });
+        } catch (\Exception $exception) {
+            return response()->json(['message' => 'Ошибка. Попробуйте позже.'], 404);
+        }
 
-        return response()->json(["success" => "Y", "message" => "Данные успешно сохранены", "redirect" => route('post.my')]);
+        return response()->json([
+            'message' => 'Данные успешно сохранены', '
+            redirect' => route('post.my')
+        ]);
     }
 
     /**
@@ -160,26 +148,19 @@ class PostController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(int $id)
+    public function show($id)
     {
-        //
-        $id = (int)$id;
-        $post = $this->postRepository->getPost($id);
-        $tags = $this->postRepository->getTagsToPost($id) ?: [];
-        $count_like = $this->likeRepository->countByPost($id);
-        $like = \Auth::check() ? $this->likeRepository->getLikeToPostAndUser($post->id, \Auth::id()) : false;
-        $comments = $this->commentRepository->getCommentsByPost($post->id);
-        $comments_count = $this->commentRepository->countByPost($post->id);
 
+        $post = Post::findOrFail($id);
+        $like = \Auth::check() ? $this->likeRepository->getLikeToPostAndUser($post->id, \Auth::id()) : false;
         $title = $post->title;
+        $comments = $this->commentRepository->getCommentsByPost($post->id);
 
         return view('blog.post.show', compact(
             'post',
-            'tags',
-            'count_like',
-            'like',
             'comments',
-            'comments_count',
+            'tags',
+            'like',
             'title'
         ));
     }
@@ -187,32 +168,23 @@ class PostController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  Post $post
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
         //
-        $post = $this->postRepository->getPost($id);
-
         if($post->user_id != \Auth::id()){
             abort(404, 'У вас недостаточно прав.');
         }
 
         $tags_list = Tag::all();
-        $tags_to_post_collection = $this->postRepository->getTagsToPost($id) ?: [];
-        $tags_to_post = [];
-
-        foreach ($tags_to_post_collection as $el){
-            $tags_to_post[] = $el->id;
-        }
 
         $title = 'Редактировать пост ' . $post->title;
 
         return view('blog.post.edit', compact(
             'post',
             'tags_list',
-            'tags_to_post',
             'title'
         ));
     }
@@ -221,57 +193,61 @@ class PostController extends BaseController
      * Update the specified resource in storage.
      *
      * @param \App\Http\Requests\PostUpdateRequest $request
-     * @param int $id
+     * @param Post $post
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
-    public function update(PostUpdateRequest $request, $id)
+    public function update(PostUpdateRequest $request, Post $post)
     {
         //
+        if($post->user_id != \Auth::id()){
+            return response()->json(['message' => 'У вас недостаточно прав.'], 404);
+        }
 
-        $Post = $this->postRepository->getEdit($id);
-        if($Post->user_id != \Auth::user()->id){
-            return response()->json(["success" => "N", "message" => "У вас недостаточно прав."]);
+        $img_path = null;
+        if($request->has('img')){
+            $img_path = request()
+                ->file('img')
+                ->store('posts');
+        }
+        if($img_path){
+            \Storage::delete($post->img);
+        }else{
+            $post->img = $img_path;
         }
 
         $post_update = [
             'title' => $request->input('title'),
             'excerpt' => $request->input('excerpt'),
             'content' => $request->input('content'),
+            'img' => $img_path,
         ];
 
-        $img_path = null;
-        if($request->file('img')){
-            if(!$img_path = $request->file('img')->store(self::IMG_PATH, 'public')){
-                return response()->json(["success" => "N", "message" => "Ошибка при записи изображения"]);
-            }
-        }
-        if($img_path){
-            \Storage::delete('public/' . $Post->getOriginal()['img']);
-            $post_update['img'] = $img_path;
-        }
+        try {
+            \DB::transaction(function() use ($post, $post_update, $request) {
 
+                $post->update($post_update);
 
-        \DB::transaction(function() use ($Post, $post_update, $request, $id) {
+                // Удаляем теги привязанные к посту
+                PostToTag::deleteTagsByPost($post->id);
 
-            $result = $Post->update($post_update);
-
-            // Удаляем теги привязанные к посту
-            PostToTag::deleteTagsByPost($Post->id);
-
-            if ($request->tags) {
-                $tagsToPostList = [];
-                foreach ($request->tags as $tag) {
-                    $tagsToPostList[] = [
-                        'post_id' => $Post->id,
-                        'tag_id' => $tag,
-                    ];
+                if ($request->tags) {
+                    $tagsToPostList = [];
+                    foreach ($request->tags as $tag) {
+                        $tagsToPostList[] = [
+                            'post_id' => $post->id,
+                            'tag_id' => $tag,
+                        ];
+                    }
+                    PostToTag::insert($tagsToPostList);
                 }
-                PostToTag::insert($tagsToPostList);
-            }
-        });
+            });
+        } catch (\Exception $exception) {
+            return response()->json(['message' => 'Ошибка. Попробуйте позже.'], 404);
 
-        return response()->json(["success" => "Y", "message" => "Пост успешно отредактирован."]);
+        }
+
+        return response()->json(['message' => 'Пост успешно отредактирован.']);
     }
 
     /**
@@ -293,7 +269,7 @@ class PostController extends BaseController
     public function addLike($id){
         $id = (int)$id;
         if(Like::checkLike($id, \Auth::id())){
-            return response()->json(["success" => "N", "message" => "Вы уже ставили лайк этому посту."]);
+            return response()->json(['message' => 'Вы уже ставили лайк этому посту'], 404);
         }
 
         $Like = Like::create([
@@ -302,52 +278,47 @@ class PostController extends BaseController
         ]);
 
         if(!$Like){
-            return response()->json(["success" => "N", "message" => "Ошибка. Попробуйте позже."]);
+            return response()->json(['message' => 'Ошибка. Попробуйте позже'], 404);
         }
 
         // Считаем лайки поста
         $count = $this->likeRepository->countByPost($id);
 
         return response()->json([
-            "success" => "Y",
-            "message" => "",
-            "type" => "add",
-            "href" => route('post.like-remove', $Like->id),
-            "count" => $count,
+            'message' => '',
+            'type' => 'add',
+            'count' => $count,
         ]);
     }
 
     /**
      * Добавляет лайк к посту
-     * @param $id - идентификатор лайка
+     * @param $id - идентификатор поста
      * @return \Illuminate\Http\JsonResponse
      */
-    public function removeLike($id){
-        $id = (int)$id;
+    public function removeLike($post_id){
+        $post_id = (int)$post_id;
 
-        $Like = Like::where('id', '=', $id)->first();
-        if(!$Like){
-            return response()->json(["success" => "N", "message" => "Ошибка. Попробуйте позже."]);
+        if(!\Auth::check()){
+            return response()->json(['message' => 'Вы не авторизованы'], 404);
         }
 
-        if($Like->user_id != \Auth::id()){
-            return response()->json(["success" => "N", "message" => "У вас недостаточно прав."]);
+        $like = Like::where('post_id', '=', $post_id)->where('user_id', '=', \Auth::id())->first();
+        if(!$like){
+            return response()->json(['message' => 'Ошибка. Невозможно удалить лайк'], 404);
         }
 
-        $post_id = $Like->post_id;
-        if(!$Like->delete()){
-            return response()->json(["success" => "N", "message" => "Ошибка. Попробуйте позже."]);
+        if(!$like->delete()){
+            return response()->json(['message' => 'Ошибка. Попробуйте позже']);
         }
 
         // Считаем лайки поста
-        $count = $this->likeRepository->countByPost($Like->post_id);
+        $count = $this->likeRepository->countByPost($like->post_id);
 
         return response()->json([
-            "success" => "Y",
-            "message" => "",
-            "type" => "remove",
-            "href" => route('post.like-add', $post_id),
-            "count" => $count,
+            'message' => '',
+            'type' => 'remove',
+            'count' => $count,
         ]);
     }
 }

@@ -2,10 +2,13 @@
 
 namespace App\Models\User;
 
+use App\Models\Blog\Follows;
+use App\Models\Blog\Post;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -27,21 +30,13 @@ class User extends Authenticatable
         'email_verified_at',
         'password',
         'avatar',
-        'avatar_select',
         'sex',
         'birthday',
         'residence',
         'description',
-        'view_name',
-        'view_sex',
-        'view_birthday',
-        'view_residence',
-        'view_description',
-        'show_yar_birthday',
-        'view_sub_characters',
-        'date_active',
-        'date_registration',
         'adm',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -60,24 +55,77 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'birthday' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
+
+    // Жадная загрузка поумодчанию
+    protected $with = ['role'];
 
     /**
      * Пол пользователя
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function sex(){
+    public function sexData(){
         return $this->belongsTo(UserSex::class, 'sex', 'id');
     }
 
+    public function role(){
+        return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id');
+    }
+
+    public function posts(){
+        return $this->hasMany(Post::class);
+    }
+
     /**
-     * Статус пользователя
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Количество подписчиков
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne|\Illuminate\Database\Query\Builder
      */
-    public function status(){
-        return $this->belongsTo(UserStatus::class, 'status', 'id');
+    public function followToCount(){
+        return $this->hasOne(Follows::class, 'to_user_id')
+            ->selectRaw('to_user_id, count(*) as q')
+            ->groupBy('to_user_id');
+    }
+
+    /**
+     * Количество коментариев
+     * @return int
+     */
+    public function getFollowToCountAttribute(){
+        if ( !array_key_exists('followToCount', $this->relations)){
+            $this->load('followToCount');
+        }
+
+        $related = $this->getRelation('followToCount');
+
+        return ($related) ? (int) $related->q : 0;
+    }
+
+    /**
+     * Количество подписчиков
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne|\Illuminate\Database\Query\Builder
+     */
+    public function followFromCount(){
+        return $this->hasOne(Follows::class, 'from_user_id')
+            ->selectRaw('from_user_id, count(*) as q')
+            ->groupBy('from_user_id');
+    }
+
+    /**
+     * Количество подписок
+     * @return int
+     */
+    public function getFollowFromCountAttribute(){
+        if ( !array_key_exists('followFromCount', $this->relations)){
+            $this->load('followFromCount');
+        }
+
+        $related = $this->getRelation('followFromCount');
+
+        return ($related) ? (int) $related->q : 0;
     }
 
     /**
@@ -88,9 +136,7 @@ class User extends Authenticatable
     public function getAvatarAttribute($avatar)
     {
         if(empty($avatar)){
-            $avatar = asset(self::NO_AVATAR);
-        }else{
-            $avatar = asset('/storage/' . $avatar);
+            $avatar = 'no-avatar.png';
         }
 
         return $avatar;
@@ -108,15 +154,5 @@ class User extends Authenticatable
         }
 
         return $sex_title;
-    }
-
-    public static function activeAvatar($avatar = null){
-        if(empty($avatar)){
-            $avatar = asset(self::NO_AVATAR);
-        }else{
-            $avatar = asset('/storage/' . $avatar);
-        }
-
-        return $avatar;
     }
 }

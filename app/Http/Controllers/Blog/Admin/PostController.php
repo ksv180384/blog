@@ -6,6 +6,7 @@ use App\Http\Controllers\Blog\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostCreateRequest;
 use App\Http\Requests\PostUpdateRequest;
+use App\Models\Blog\Post;
 use App\Models\Blog\PostToTag;
 use App\Models\Blog\Tag;
 use App\Repositories\CommentRepository;
@@ -52,10 +53,6 @@ class PostController extends BaseController
         }
         $posts = $this->postRepository->getPreviewPostsListAdm(10);
         $tags = Tag::all(['id', 'title']);
-        $tags_to_post = [];
-        if(!empty($posts)){
-            $tags_to_post = $this->tagRepository->getTagsToPosts($posts->collect()->all());
-        }
 
         return view('blog.post.adm.posts', compact(
             'posts',
@@ -88,19 +85,17 @@ class PostController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  Post $post
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
         //
         if(!\Auth::user()->can('blog-posts-edit')){
             abort(404, 'У вас недостаточно прав.');
         }
-        $id = (int)$id;
-        $post = $this->postRepository->getPost($id);
-        $tags = $this->postRepository->getTagsToPost($id) ?: [];
-        $count_like = $this->likeRepository->countByPost($id);
+
+        $count_like = $this->likeRepository->countByPost($post->id);
         $like = \Auth::check() ? $this->likeRepository->getLikeToPostAndUser($post->id, \Auth::id()) : false;
         $comments = $this->commentRepository->getCommentsByPost($post->id);
         $comments_count = $this->commentRepository->countByPost($post->id);
@@ -109,7 +104,6 @@ class PostController extends BaseController
 
         return view('blog.post.adm.show', compact(
             'post',
-            'tags',
             'count_like',
             'like',
             'comments',
@@ -121,25 +115,18 @@ class PostController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
         //
-        $post = $this->postRepository->getPost($id);
-
         if(!\Auth::user()->can('blog-posts-edit')){
             abort(404, 'У вас недостаточно прав.');
         }
 
+        //$post = Post::find($id);
         $tags_list = Tag::all();
-        $tags_to_post_collection = $this->postRepository->getTagsToPost($id) ?: [];
-        $tags_to_post = [];
-
-        foreach ($tags_to_post_collection as $el){
-            $tags_to_post[] = $el->id;
-        }
 
         $title = $post->title;
 
@@ -155,59 +142,61 @@ class PostController extends BaseController
      * Update the specified resource in storage.
      *
      * @param  PostUpdateRequest $request
-     * @param  int $id
+     * @param  Post $post
      * @return \Illuminate\Http\Response
      * @throws \Throwable
      */
-    public function update(PostUpdateRequest $request, $id)
+    public function update(PostUpdateRequest $request, Post $post)
     {
         //
-        $Post = $this->postRepository->getEdit($id);
         if(!\Auth::user()->can('blog-posts-edit')){
-            return response()->json(["success" => "N", "message" => "У вас недостаточно прав."]);
+            return response()->json(['message' => 'У вас недостаточно прав.'], 404);
+        }
+
+        $img_path = null;
+        if($request->has('img')){
+            $img_path = request()
+                ->file('img')
+                ->store('posts');
+        }
+        if($img_path){
+            \Storage::delete($post->img);
+        }else{
+            $post->img = $img_path;
         }
 
         $post_update = [
             'title' => $request->input('title'),
             'excerpt' => $request->input('excerpt'),
             'content' => $request->input('content'),
+            'img' => $img_path,
         ];
 
-        $img_path = null;
-        if($request->file('img')){
-            $img_path = $request
-                            ->file('img')
-                            ->store(\App\Http\Controllers\Blog\PostController::IMG_PATH, 'public');
-            if(!$img_path){
-                return response()->json(["success" => "N", "message" => "Ошибка при записи изображения"]);
-            }
-        }
-        if($img_path){
-            \Storage::delete('public/' . $Post->getOriginal()['img']);
-            $post_update['img'] = $img_path;
-        }
+        try {
+            \DB::transaction(function() use ($post, $post_update, $request) {
 
+                $post->update($post_update);
 
-        \DB::transaction(function() use ($Post, $post_update, $request, $id) {
+                // Удаляем теги привязанные к посту
+                PostToTag::deleteTagsByPost($post->id);
 
-            $result = $Post->update($post_update);
-
-            // Удаляем теги привязанные к посту
-            PostToTag::deleteTagsByPost($Post->id);
-
-            if ($request->tags) {
-                $tagsToPostList = [];
-                foreach ($request->tags as $tag) {
-                    $tagsToPostList[] = [
-                        'post_id' => $Post->id,
-                        'tag_id' => $tag,
-                    ];
+                if ($request->tags) {
+                    $tagsToPostList = [];
+                    foreach ($request->tags as $tag) {
+                        $tagsToPostList[] = [
+                            'post_id' => $post->id,
+                            'tag_id' => $tag,
+                        ];
+                    }
+                    PostToTag::insert($tagsToPostList);
                 }
-                PostToTag::insert($tagsToPostList);
-            }
-        });
+            });
+        } catch (\Exception $exception) {
+            return response()->json(['message' => 'Ошибка. Попробуйте позже.'], 404);
 
-        return response()->json(["success" => "Y", "message" => "Пост успешно отредактирован."]);
+        }
+
+        return response()->json(['message' => 'Пост успешно отредактирован.']);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Models\Blog;
 
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
@@ -32,4 +33,8 @@ class Comment extends Model
     protected $casts = [];
 
     public $timestamps = true;
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }

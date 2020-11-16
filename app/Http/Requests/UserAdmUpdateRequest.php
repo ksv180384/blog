@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UserUpdateReques extends FormRequest
+class UserAdmUpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,9 +25,8 @@ class UserUpdateReques extends FormRequest
     {
         return [
             'name' => 'min:2|max:100',
-            // only_user - уникальное поле и приандлежит текущему пользователю
-            'email' => 'email|only_user',
-            'password' => 'min:6|confirmed',
+            'email' => 'email',
+            'password' => 'min:6',
             'avatar' => 'nullable|file|mimes:jpeg,jpg,gif,png|size:7168',
             'sex' => 'nullable|exists:user_sex,id',
             'birthday' => 'nullable|date',
@@ -49,15 +48,13 @@ class UserUpdateReques extends FormRequest
             'avatar.file' => 'Аватар должен быть файлом формата jpg, jpeg, gif, png.',
             'avatar.size' => 'Аватар превышает максимально допустимый размер файла (:attribute).',
             'avatar.mimes' => 'Аватар должен быть файлом формата jpeg, jpg, gif, png.',
-            'email.only_user' => 'Пользователь с таким email уже существует.',
             'email.email' => 'Вы ввели некорректный email.',
-            'password.min' => 'Пароль должен быть не короче 6 символов.',
-            'password.confirmed' => 'Неверно подтвержден пароль.',
             'sex.exists' => 'Неверно задан пол.',
             'birthday.date' => 'Неверная дата рождения',
             'residence.min' => 'Поле "Место проживания" должно содержать не менее 2-х символов.',
             'residence.max' => 'Поле "Место проживания" должно содержать не более 5000 символов.',
             'description.max' => 'Поле "о себе" должно содержать не более 5000 символов.',
+            'status.exists' => 'Неверно задан статус.',
             'adm.digits' => 'Неверно задан adm',
         ];
     }

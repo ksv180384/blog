@@ -42,7 +42,7 @@
 
                                 <h3 class="profile-username text-center">{{ $userItem->name }}</h3>
 
-                                <p class="text-muted text-center js-role-name-value">{{ $userItem->role_name }}</p>
+                                <p class="text-muted text-center js-role-name-value">{{ $userItem->role[0]->name }}</p>
 
                                 @can('user-edit')
                                     <div class="text-center">
@@ -90,13 +90,13 @@
                                                 <li class="list-group-item">
                                                     <strong>Имя</strong>
                                                     <a class="float-right col-md-10">
-                                                        <input type="text" name="name" class="form-control" value="{{ $userItem->name }}">
+                                                        <input type="text" name="name" class="form-control" value="{{ $userItem->name }}"/>
                                                     </a>
                                                 </li>
                                                 <li class="list-group-item">
                                                     <strong>Email</strong>
                                                     <a class="float-right col-md-10">
-                                                        <input type="text" name="email" class="form-control" value="{{ $userItem->email }}" required>
+                                                        <input type="text" name="email" class="form-control" value="{{ $userItem->email }}" required/>
                                                     </a>
                                                 </li>
                                                 <li class="list-group-item">
@@ -113,6 +113,21 @@
                                                         </select>
                                                     </a>
                                                 </li>
+
+
+                                                <li class="list-group-item">
+                                                    <strong>Дата рождения</strong>
+                                                    <a class="float-right col-md-10">
+                                                        <input type="text" class="form-control" name="birthday" value="{{ $userItem->birthday }}"/>
+                                                    </a>
+                                                </li>
+                                                <li class="list-group-item">
+                                                    <strong>Место проживания</strong>
+                                                    <a class="float-right col-md-10">
+                                                        <input type="text" class="form-control" name="residence" value="{{ $userItem->residence }}"/>
+                                                    </a>
+                                                </li>
+
                                                 <li class="list-group-item">
                                                     <strong>О себе</strong>
                                                     <a class="d-block">
@@ -143,7 +158,7 @@
                                                 <label>Роль</label>
                                                 <select class="form-control select2-hidden-accessible" tabindex="-1" id="roleUser" name="user_role">
                                                     @foreach($roles as $role)
-                                                        <option value="{{ $role->id }}" {{ $role->id == $userItem->role_id ? 'selected' : '' }}>
+                                                        <option value="{{ $role->id }}" {{ $role->id == $userItem->role[0]->id ? 'selected' : '' }}>
                                                             {{ $role->name }}
                                                         </option>
                                                     @endforeach
@@ -167,7 +182,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <label>Подтвердите пароль</label>
-                                                <input type="password" name="password_confirm" class="form-control" placeholder="Подтвердите пароль">
+                                                <input type="password" name="password_confirmation" class="form-control" placeholder="Подтвердите пароль">
                                             </div>
 
                                             <div class="text-center">

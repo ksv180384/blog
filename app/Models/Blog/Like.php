@@ -33,14 +33,6 @@ class Like extends Model
 
     public $timestamps = false;
 
-    /**
-     * Пост
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function post(){
-        return $this->belongsTo(Post::class, 'post_id', 'id');
-    }
 
     /**
      * Тег

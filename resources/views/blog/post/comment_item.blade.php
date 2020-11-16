@@ -1,6 +1,6 @@
 <div class="post clearfix">
     <div class="user-block">
-        <div class="div-img-circle" style="background-image: url({{ $comment->avatar }})"></div>
+        <div class="div-img-circle" style="background-image: url({{ Storage::url($comment->user->avatar) }})"></div>
         <span class="username">
             <a href="{{ route('profile.show',$comment->user_id ) }}">{{ $comment->name }}</a>
         </span>
