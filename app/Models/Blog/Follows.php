@@ -5,6 +5,12 @@ namespace App\Models\Blog;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Follows
+ * @package App\Models\Blog
+ * @property int from_user_id
+ * @property int to_user_id
+ */
 class Follows extends Model
 {
     /**

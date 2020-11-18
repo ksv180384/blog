@@ -31,4 +31,14 @@ class RoleCreateRequest extends FormRequest
             'permission' => 'required|exists:permissions,id',
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'name.required' => 'Заполните поле "Название".',
+            'name.unique' => 'Группа прав с таким названием уже существует.',
+            'name.min' => 'Название должено содержать не менее 2-х символов.',
+            'permission.exists' => 'Неверно заданы права пользователя.',
+        ];
+    }
 }

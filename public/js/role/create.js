@@ -1,37 +1,27 @@
 $(document).ready(function () {
 
     // Сохраняет данные роли
-    $('body').on('click', '#btnFormRoleStore', function(e){
+    $('body').on('submit', '#formRoleStore', function(e){
         e.preventDefault();
 
-        var thisBtn = $(this);
+        const btn = $('#btnFormRoleStore');
 
-        var $form = $('#formRoleStore');
+        const $form = $(this);
 
-        thisBtn.prop('disabled', true);
-
+        btn.prop('disabled', true);
         axios({
             method: $form.attr('method'),
             url: $form.attr('action'),
             data: $form.serialize()
         })
             .then(function (response) {
-                if(response.data.success == 'N'){
-                    thisBtn.prop('disabled', false);
-                    toastr.error(response.data.message);
-                    return true;
-                }
                 location.href = response.data.redirect;
                 toastr.success(response.data.message);
             })
-            .catch(error => {
-                thisBtn.prop('disabled', false);
+            .catch(function (error) {
+                btn.prop('disabled', false);
                 if(error.response){
-                    var error_text = '';
-                    $.each(error.response.data.errors, function (index, val) {
-                        error_text += val[0];
-                    });
-                    toastr.error(error.response.data.message + ' ' + error_text);
+                    toastr.error(errorsToString(error.response.data));
                     return true;
                 }
 

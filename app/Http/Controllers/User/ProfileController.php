@@ -52,27 +52,6 @@ class ProfileController extends BaseController
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -82,8 +61,6 @@ class ProfileController extends BaseController
     {
         $user_item = User::findOrFail($id);
         $posts = $user_item->posts()->paginate(10);
-        $follow_count = $user_item->followToCount;
-        $follow_from_count = $user_item->followFromCount;
 
         $follow_check = [];
         if(\Auth::check()){
@@ -96,21 +73,8 @@ class ProfileController extends BaseController
             'posts',
             'user_item',
             'follow_check',
-            'follow_count',
-            'follow_from_count',
             'title'
         ));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**
@@ -135,7 +99,7 @@ class ProfileController extends BaseController
     /**
      * Загружает аватар пользователя
      *
-     * @param  Request $request
+     * @param  UserAvatarUpdateRequest $request
      * @return \Illuminate\Http\Response
      */
     public function updateAvatar(UserAvatarUpdateRequest $request)
@@ -155,16 +119,5 @@ class ProfileController extends BaseController
             return response()->json(['message' => 'Ошибка при сохранении аватара. Попробуйте позже.']);
         }
         return response()->json(['message' => 'Данные успешно сохранены', 'url' => asset('/storage/' . $result)]);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }

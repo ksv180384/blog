@@ -12,6 +12,11 @@ class RoleController extends Controller
 {
     const PAGE_ITEMS = 20;
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -20,13 +25,12 @@ class RoleController extends Controller
     public function index(Request $request)
     {
         //
-        if(!\Auth::user() || !\Auth::user()->can('role-list')){
+        if(!\Auth::user()->can('role-list')){
             abort(404, 'У вас недостаточно прав.');
         }
 
-        $roles = Role::orderBy('id','ASC')->paginate(self::PAGE_ITEMS);
-        return view('admin.role.list',compact('roles'))
-            ->with('i', ($request->input('page', 1) - 1) * self::PAGE_ITEMS);
+        $roles = Role::orderBy('id', 'ASC')->paginate(self::PAGE_ITEMS);
+        return view('admin.role.list', compact('roles'));
     }
 
     /**
@@ -37,11 +41,11 @@ class RoleController extends Controller
     public function create()
     {
         //
-        if(!\Auth::user() || !\Auth::user()->can('role-create')){
+        if(!\Auth::user()->can('role-create')){
             abort(404, 'У вас недостаточно прав.');
         }
 
-        $permission = Permission::get();
+        $permission = Permission::all();
         return view('admin.role.create',compact('permission'));
     }
 
@@ -54,41 +58,38 @@ class RoleController extends Controller
     public function store(RoleCreateRequest $request)
     {
         //
-
+        if(!\Auth::user()->can('role-create')){
+            return response()->json(['message' => 'У вас недостаточно прав.'], 404);
+        }
         if(!$role = Role::create(['name' => $request->input('name')])){
-            return response()->json(["success" => "N", "message" => "Ошибка при сохранении роли."]);
+            return response()->json(['message' => 'Ошибка при сохранении роли.'], 404);
         }
         if(!$role->syncPermissions($request->input('permission'))){
-            return response()->json(["success" => "N", "message" => "Ошибка при сохранении прав роли."]);
+            return response()->json(['message' => 'Ошибка при сохранении прав роли.'], 404);
         }
 
-        return response()->json(
-            [
-                "success" => "Y",
-                "message" => 'Роль "' . $role->name . '" успешно добавлена',
-                "redirect" => route('roles.index'),
-            ]
-        );
+        return response()->json([
+                'message' => 'Роль "' . $role->name . '" успешно добавлена',
+                'redirect' => route('roles.index'),
+            ]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Role $role)
     {
         //
-        if(!\Auth::user() || !\Auth::user()->can('role-list')){
+        if(!\Auth::user()->can('role-list')){
             abort(404, 'У вас недостаточно прав.');
         }
 
-        $role = Role::find($id);
-        $rolePermissions = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
-            ->where("role_has_permissions.role_id",$id)
+        $rolePermissions = Permission::join('role_has_permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+            ->where('role_has_permissions.role_id', $role->id)
             ->get();
-
 
         return view('admin.role.show',compact('role','rolePermissions'));
     }
@@ -96,22 +97,20 @@ class RoleController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  Role  $role
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Role $role)
     {
         //
-        if(!\Auth::user() || !\Auth::user()->can('role-edit')){
+        if(!\Auth::user()->can('role-edit')){
             abort(404, 'У вас недостаточно прав.');
         }
 
-        $role = Role::find($id);
-        $permission = Permission::get();
-        $rolePermissions = \DB::table("role_has_permissions")->where("role_has_permissions.role_id", $id)
+        $permission = Permission::all();
+        $rolePermissions = \DB::table('role_has_permissions')->where('role_has_permissions.role_id', $role->id)
             ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
             ->all();
-
 
         return view('admin.role.edit',compact('role','permission','rolePermissions'));
     }
@@ -119,28 +118,28 @@ class RoleController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  RoleUpdateRequest  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(RoleUpdateRequest $request, $id)
     {
         //
-        if(!\Auth::user() || !\Auth::user()->can('role-edit')){
-            return response()->json(["success" => "N", "message" => "У вас недостаточно прав."]);
+        if(!\Auth::user()->can('role-edit')){
+            return response()->json(['message' => 'У вас недостаточно прав.'], 404);
         }
 
         $role = Role::find($id);
         $role->name = $request->input('name');
         if(!$role->save()){
-            return response()->json(["success" => "N", "message" => "Ошибка при сохранении роли."]);
+            return response()->json(['message' => 'Ошибка при сохранении роли.'], 404);
         }
 
         if(!$role->syncPermissions($request->input('permission'))){
-            return response()->json(["success" => "N", "message" => "Ошибка при сохранении прав роли."]);
+            return response()->json(['message' => 'Ошибка при сохранении прав роли.'], 404);
         }
 
-        return response()->json(["success" => "Y", "message" => "Успешно сохранено."]);
+        return response()->json(['message' => 'Успешно сохранено.']);
     }
 
     /**
@@ -151,11 +150,11 @@ class RoleController extends Controller
      */
     public function destroy($id)
     {
-        if(!\Auth::user()->can('role-create') || !auth()->check()){
+        if(!\Auth::user()->can('role-create')){
             return back()->withErrors(['msg' => 'У вас недостаточно прав'])->withInput();
         }
         //
-        \DB::table("roles")->where('id',$id)->delete();
+        \DB::table('roles')->where('id', $id)->delete();
         return redirect()->route('roles.index')
             ->with('success','Роль успешно удалена');
     }

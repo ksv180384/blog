@@ -28,7 +28,7 @@ class UserUpdateReques extends FormRequest
             // only_user - уникальное поле и приандлежит текущему пользователю
             'email' => 'email|only_user',
             'password' => 'min:6|confirmed',
-            'avatar' => 'nullable|file|mimes:jpeg,jpg,gif,png|size:7168',
+            'avatar' => 'nullable|file|mimes:jpeg,jpg,gif,png|max:7168',
             'sex' => 'nullable|exists:user_sex,id',
             'birthday' => 'nullable|date',
             'residence' => 'max:100',
@@ -47,7 +47,7 @@ class UserUpdateReques extends FormRequest
     {
         return [
             'avatar.file' => 'Аватар должен быть файлом формата jpg, jpeg, gif, png.',
-            'avatar.size' => 'Аватар превышает максимально допустимый размер файла (:attribute).',
+            'avatar.size' => 'Аватар превышает максимально допустимый размер файла (:max).',
             'avatar.mimes' => 'Аватар должен быть файлом формата jpeg, jpg, gif, png.',
             'email.only_user' => 'Пользователь с таким email уже существует.',
             'email.email' => 'Вы ввели некорректный email.',

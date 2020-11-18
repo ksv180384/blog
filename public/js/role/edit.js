@@ -1,14 +1,14 @@
 $(document).ready(function () {
 
     // Сохраняет данные роли
-    $('body').on('click', '#btnFormRoleUpdate', function(e){
+    $('body').on('submit', '#formRoleUpdate', function(e){
         e.preventDefault();
 
-        var thisBtn = $(this);
+        const btn = $('#btnFormRoleUpdate');
 
-        var $form = $('#formRoleUpdate');
+        const $form = $('#formRoleUpdate');
 
-        thisBtn.prop('disabled', true);
+        btn.prop('disabled', true);
 
         axios({
             method: $form.attr('method'),
@@ -16,21 +16,14 @@ $(document).ready(function () {
             data: $form.serialize()
         })
             .then(function (response) {
-                thisBtn.prop('disabled', false);
-                if(response.data.success == 'N'){
-                    toastr.error(response.data.message);
-                    return true;
-                }
+                btn.prop('disabled', false);
+
                 toastr.success(response.data.message);
             })
-            .catch(error => {
-                thisBtn.prop('disabled', false);
+            .catch(function (error) {
+                btn.prop('disabled', false);
                 if(error.response){
-                    var error_text = '';
-                    $.each(error.response.data.errors, function (index, val) {
-                        error_text += val[0];
-                    });
-                    toastr.error(error.response.data.message + ' ' + error_text);
+                    toastr.error(errorsToString(error.response.data));
                     return true;
                 }
 

@@ -12,11 +12,11 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-xs-12 col-sm-12 col-md-6">
-                        <h5>{{ $userItem->email }}</h5>
+                        <h5>{{ $user->email }}</h5>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-6">
                         <div class="float-right">
-                            {{ Breadcrumbs::render('user', $userItem) }}
+                            {{ Breadcrumbs::render('user', $user) }}
                         </div>
                     </div>
                 </div>
@@ -34,19 +34,19 @@
                             <div class="card-body box-profile">
                                 <div class="text-center">
                                     <div class="profile-user-img avatar-circle img-fluid img-circle js-user-avatar"
-                                         style="background-image: url({{ $userItem->avatar }})"
+                                         style="background-image: url({{ Storage::url($user->avatar) }})"
                                          alt="User profile picture">
 
                                     </div>
                                 </div>
 
-                                <h3 class="profile-username text-center">{{ $userItem->name }}</h3>
+                                <h3 class="profile-username text-center">{{ $user->name }}</h3>
 
-                                <p class="text-muted text-center js-role-name-value">{{ $userItem->role[0]->name }}</p>
+                                <p class="text-muted text-center js-role-name-value">{{ $user->role[0]->name }}</p>
 
                                 @can('user-edit')
                                     <div class="text-center">
-                                        <a href="{{ route('user.auth', $userItem->id) }}" class="btn btn-primary btn-xs">Авторизоваться</a>
+                                        <a href="{{ route('user.auth', $user->id) }}" class="btn btn-primary btn-xs">Авторизоваться</a>
                                     </div>
                                 @endcan
                             </div>
@@ -82,7 +82,7 @@
                                     <!-- .tab-pane -->
                                     <div class="tab-pane active" id="timeline">
 
-                                        <form action="{{ route('user.update', $userItem->id) }}" method="post" id="formUserUpdate">
+                                        <form action="{{ route('user.update', $user->id) }}" method="post" id="formUserUpdate">
                                             @method('PATCH')
                                             @csrf
 
@@ -90,23 +90,23 @@
                                                 <li class="list-group-item">
                                                     <strong>Имя</strong>
                                                     <a class="float-right col-md-10">
-                                                        <input type="text" name="name" class="form-control" value="{{ $userItem->name }}"/>
+                                                        <input type="text" name="name" class="form-control" value="{{ $user->name }}"/>
                                                     </a>
                                                 </li>
                                                 <li class="list-group-item">
                                                     <strong>Email</strong>
                                                     <a class="float-right col-md-10">
-                                                        <input type="text" name="email" class="form-control" value="{{ $userItem->email }}" required/>
+                                                        <input type="text" name="email" class="form-control" value="{{ $user->email }}" required/>
                                                     </a>
                                                 </li>
                                                 <li class="list-group-item">
                                                     <strong>Пол</strong>
                                                     <a class="float-right col-md-10">
                                                         <select name="sex" class="form-control">
-                                                            <option value="" {{ !$userItem->sex ? 'selected' : '' }}>Нет</option>
+                                                            <option value="" {{ !$user->sex ? 'selected' : '' }}>Нет</option>
                                                             @foreach($sexList as $sexItem)
                                                                 <option value="{{ $sexItem->id }}"
-                                                                        {{ $sexItem->id == $userItem->sex ? 'selected' : '' }}>
+                                                                        {{ $sexItem->id == $user->sex ? 'selected' : '' }}>
                                                                     {{ $sexItem->title }}
                                                                 </option>
                                                             @endforeach
@@ -118,13 +118,13 @@
                                                 <li class="list-group-item">
                                                     <strong>Дата рождения</strong>
                                                     <a class="float-right col-md-10">
-                                                        <input type="text" class="form-control" name="birthday" value="{{ $userItem->birthday }}"/>
+                                                        <input type="text" class="form-control" name="birthday" value="{{ $user->birthday }}"/>
                                                     </a>
                                                 </li>
                                                 <li class="list-group-item">
                                                     <strong>Место проживания</strong>
                                                     <a class="float-right col-md-10">
-                                                        <input type="text" class="form-control" name="residence" value="{{ $userItem->residence }}"/>
+                                                        <input type="text" class="form-control" name="residence" value="{{ $user->residence }}"/>
                                                     </a>
                                                 </li>
 
@@ -134,7 +134,7 @@
                                                         <textarea name="description"
                                                                   class="form-control"
                                                                   cols="30"
-                                                                  rows="4">{{ $userItem->description }}</textarea>
+                                                                  rows="4">{{ $user->description }}</textarea>
                                                     </a>
                                                 </li>
                                             </ul>
@@ -153,12 +153,12 @@
                                               id="formControlUser">
                                             @csrf
 
-                                            <input type="hidden" value="{{ $userItem->id }}" name="user_id">
+                                            <input type="hidden" value="{{ $user->id }}" name="user_id">
                                             <div class="form-group">
                                                 <label>Роль</label>
                                                 <select class="form-control select2-hidden-accessible" tabindex="-1" id="roleUser" name="user_role">
                                                     @foreach($roles as $role)
-                                                        <option value="{{ $role->id }}" {{ $role->id == $userItem->role[0]->id ? 'selected' : '' }}>
+                                                        <option value="{{ $role->id }}" {{ $role->id == $user->role[0]->id ? 'selected' : '' }}>
                                                             {{ $role->name }}
                                                         </option>
                                                     @endforeach
@@ -175,7 +175,7 @@
                                               id="formChangePassword">
                                             @csrf
 
-                                            <input type="hidden" value="{{ $userItem->id }}" name="user_id">
+                                            <input type="hidden" value="{{ $user->id }}" name="user_id">
                                             <div class="form-group">
                                                 <label>Пароль</label>
                                                 <input type="password" name="password" class="form-control" placeholder="Пароль">

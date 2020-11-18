@@ -27,8 +27,18 @@ class RoleUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:2',
+            'name' => 'required|unique:roles,name|min:2',
             'permission' => 'exists:permissions,id',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'name.required' => 'Заполните поле "Название".',
+            'name.unique' => 'Группа прав с таким названием уже существует.',
+            'name.min' => 'Название должено содержать не менее 2-х символов.',
+            'permission.exists' => 'Неверно заданы права пользователя.',
         ];
     }
 }

@@ -54,6 +54,10 @@
                     @endforeach
                 </tbody>
             </table>
+
+            <div>
+                {{ $roles->links() }}
+            </div>
         </div>
         <!-- /.card-body -->
     </div>

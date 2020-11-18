@@ -56,30 +56,8 @@ class PostController extends BaseController
 
         return view('blog.post.adm.posts', compact(
             'posts',
-            'tags_to_post',
             'tags'
         ));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
     }
 
     /**
@@ -115,7 +93,7 @@ class PostController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  Post  $post
+     * @param  Post $post
      * @return \Illuminate\Http\Response
      */
     public function edit(Post $post)
@@ -199,30 +177,17 @@ class PostController extends BaseController
         return response()->json(['message' => 'Пост успешно отредактирован.']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
     public function published(int $id){
         if(!\Auth::user()->can('blog-posts-published')){
             return response()->json([
-                "success" => "N",
-                "message" => "У вас недостаточно прав для публикации постов.",
-            ]);
+                'message' => 'У вас недостаточно прав для публикации постов.',
+            ], 404);
         }
         $post = $this->postRepository->getEdit($id);
         if(!$post){
             return response()->json([
-                "success" => "N",
-                "message" => "Неверно задан пост.",
-            ]);
+                'message' => 'Неверно задан пост.',
+            ], 404);
         }
 
         if($post->published_at){
@@ -238,25 +203,20 @@ class PostController extends BaseController
         }
         if(!$post->save()){
             return response()->json([
-                "success" => "N",
-                "message" => "Ошибка при попытке публикации поста",
+                'message' => 'Ошибка при попытке публикации поста',
             ]);
         }
 
         $date = '<span class="text-danger">неопубликованно</span>';
         if($post->published_at){
-            $date = '<strong>'.
-                        \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$post->published_at)->format('H:i').'
-                    </strong>'.
-                    \Carbon\Carbon::createFromFormat('Y-m-d H:i:s',$post->published_at)->format('d.m.Y');
+            $date = '<strong>' . $post->published_at->format('H:i') . '</strong>' . $post->published_at->format('d.m.Y');
         }
 
         return response()->json([
-            "success" => "Y",
-            "message" => $message,
-            "text" => $text,
-            "classCss" => $class_css,
-            "date" => $date,
+            'message' => $message,
+            'text' => $text,
+            'classCss' => $class_css,
+            'date' => $date,
         ]);
     }
 }

@@ -20,7 +20,6 @@ $(document).ready(function(){
                 btn.closest('.btn-like').find('.js-like-count-el').text(response.data.count);
             })
             .catch(function (error) {
-
                 if(error.response){
                     toastr.error(errorsToString(error.response.data));
                     return true;

@@ -60,10 +60,15 @@ class PostController extends BaseController
         ));
     }
 
+    /**
+     * Посты по тегу
+     * @param int $tag_id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function postsByTag($tag_id){
 
+        $tag = Tag::findOrFail($tag_id);
         $posts = $this->postRepository->getPostsListByTag($tag_id, 10);
-        $tag = Tag::where('id', '=', $tag_id)->first();
 
         $title = 'Посты тега ' . $tag->title;
 
@@ -145,13 +150,11 @@ class PostController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  Post $post
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-
-        $post = Post::findOrFail($id);
         $like = \Auth::check() ? $this->likeRepository->getLikeToPostAndUser($post->id, \Auth::id()) : false;
         $title = $post->title;
         $comments = $this->commentRepository->getCommentsByPost($post->id);
@@ -159,7 +162,6 @@ class PostController extends BaseController
         return view('blog.post.show', compact(
             'post',
             'comments',
-            'tags',
             'like',
             'title'
         ));
@@ -251,19 +253,8 @@ class PostController extends BaseController
     }
 
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    /**
      * Добавляет лайк к посту
-     * @param $id - идентификатор поста
+     * @param int $id - идентификатор поста
      * @return \Illuminate\Http\JsonResponse
      */
     public function addLike($id){
@@ -293,7 +284,7 @@ class PostController extends BaseController
 
     /**
      * Добавляет лайк к посту
-     * @param $id - идентификатор поста
+     * @param int $post_id - идентификатор поста
      * @return \Illuminate\Http\JsonResponse
      */
     public function removeLike($post_id){

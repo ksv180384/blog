@@ -4,7 +4,7 @@ $(document).ready(function(){
     $('body').on('submit', '#formAddFollow', function(e){
         e.preventDefault();
 
-        const thisBtn = $('#followBtn');
+        const btn = $('#followBtn');
         const $form = $(this);
 
         thisBtn.prop('disabled', true);
@@ -14,24 +14,16 @@ $(document).ready(function(){
             data: $form.serialize()
         })
             .then(function (response) {
-                thisBtn.prop('disabled', false);
-                if(response.data.success != 'Y'){
-                    toastr.error(response.data.message);
-                    return true;
-                }
+                btn.prop('disabled', false);
                 toastr.success(response.data.message);
                 $('#formAddFollow').replaceWith(response.data.html);
                 $('#followTo').text(response.data.follow_count);
 
             })
             .catch(function (error) {
-                thisBtn.prop('disabled', false);
+                btn.prop('disabled', false);
                 if(error.response){
-                    var error_text = '';
-                    $.each(error.response.data.errors, function (index, val) {
-                        error_text += val[0] + '<br>';
-                    });
-                    toastr.error(error.response.data.message + '<br>' + error_text);
+                    toastr.error(errorsToString(error.response.data));
                     return true;
                 }
 
@@ -54,22 +46,15 @@ $(document).ready(function(){
         })
             .then(function (response) {
                 $button.prop('disabled', false);
-                if(response.data.success != 'Y'){
-                    toastr.error(response.data.message);
-                    return true;
-                }
+
                 toastr.success(response.data.message);
                 $('#formDestriyFollow').replaceWith(response.data.html);
                 $('#followTo').text(response.data.follow_count);
             })
             .catch(function (error) {
-                $button.prop('disabled', false);
+                btn.prop('disabled', false);
                 if(error.response){
-                    var error_text = '';
-                    $.each(error.response.data.errors, function (index, val) {
-                        error_text += val[0] + '<br>';
-                    });
-                    toastr.error(error.response.data.message + '<br>' + error_text);
+                    toastr.error(errorsToString(error.response.data));
                     return true;
                 }
 

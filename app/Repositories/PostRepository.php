@@ -45,6 +45,7 @@ class PostRepository extends CoreRepository
 
     /**
      * Получает список постов для страницы со списком постов. Не включет в себя полную статью (content)
+     * @param int $paginate
      * @return \Illuminate\Support\Collection
      */
     public function getPreviewPostsList($paginate = 10){
@@ -109,6 +110,12 @@ class PostRepository extends CoreRepository
         return $posts;
     }
 
+    /**
+     * Получаем все посты пользователя включая неопубликованные, сортировка по дате создания
+     * @param int $user_id
+     * @param int $paginate
+     * @return mixed
+     */
     public function getPreviewPostsListByUserPublishedAll($user_id, $paginate = 10){
         $posts = $this->startConditions()
             ->select([

@@ -5,6 +5,12 @@ namespace App\Models\Blog;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Like
+ * @package App\Models\Blog
+ * @property int post_id
+ * @property int user_id
+ */
 class Like extends Model
 {
     /**

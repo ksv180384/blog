@@ -25,7 +25,7 @@ class PostUpdateRequest extends FormRequest
     {
         return [
             //
-            'img' => 'nullable|file|mimes:jpeg,jpg,gif,png|size:7168',
+            'img' => 'nullable|file|mimes:jpeg,jpg,gif,png|max:7168',
             'excerpt' => 'max:500',
             'content' => 'min:2',
         ];
@@ -34,9 +34,9 @@ class PostUpdateRequest extends FormRequest
     public function messages()
     {
         return [
-            'avatar.file' => 'Аватар должен быть файлом формата jpg, jpeg, gif, png.',
-            'avatar.size' => 'Аватар превышает максимально допустимый размер файла (:attribute).',
-            'avatar.mimes' => 'Аватар должен быть файлом формата jpeg, jpg, gif, png.',
+            'img.file' => 'Изображение должено быть файлом формата jpg, jpeg, gif, png.',
+            'img.max' => 'Изображение превышает максимально допустимый размер файла (:max).',
+            'img.mimes' => 'Аватар должен быть файлом формата jpeg, jpg, gif, png.',
             'user_id.exists' => 'Неверно задан идентификатор пользователя.',
             'excerpt.max' => 'Поле "Коротко" должно содержать не более 5000 символов.',
             'content.min' => 'Текст поста должен содержать не менее 2-х символов.',

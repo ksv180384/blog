@@ -27,7 +27,7 @@ class UserAdmUpdateRequest extends FormRequest
             'name' => 'min:2|max:100',
             'email' => 'email',
             'password' => 'min:6',
-            'avatar' => 'nullable|file|mimes:jpeg,jpg,gif,png|size:7168',
+            'avatar' => 'nullable|file|mimes:jpeg,jpg,gif,png|max:7168',
             'sex' => 'nullable|exists:user_sex,id',
             'birthday' => 'nullable|date',
             'residence' => 'max:100',
@@ -46,7 +46,7 @@ class UserAdmUpdateRequest extends FormRequest
     {
         return [
             'avatar.file' => 'Аватар должен быть файлом формата jpg, jpeg, gif, png.',
-            'avatar.size' => 'Аватар превышает максимально допустимый размер файла (:attribute).',
+            'avatar.size' => 'Аватар превышает максимально допустимый размер файла (:max).',
             'avatar.mimes' => 'Аватар должен быть файлом формата jpeg, jpg, gif, png.',
             'email.email' => 'Вы ввели некорректный email.',
             'sex.exists' => 'Неверно задан пол.',

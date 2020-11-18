@@ -38,6 +38,6 @@ class CommentController extends BaseController
             'message' => 'Комментарий успешно добавлен.',
             'html' => view('blog.post.comment_item', compact('comment'))->render(),
             'count_messages' => $comments_count,
-            ]);
+        ]);
     }
 }

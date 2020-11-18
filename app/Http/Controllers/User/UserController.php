@@ -89,7 +89,7 @@ class UserController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  UserCreateRequest  $request
      * @return \Illuminate\Http\Response
      */
     public function store(UserCreateRequest $request)
@@ -122,7 +122,7 @@ class UserController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  User  $user
+     * @param  User $user
      * @return \Illuminate\Http\Response
      */
     public function show(User $user)
@@ -132,10 +132,7 @@ class UserController extends BaseController
             abort(404, 'У вас недостаточно прав.');
         }
 
-        //$userItem = User::find($id);
         $userPosts = $this->postRepository->getPreviewPostsListByUserPublishedAll($user->id, 10);
-        //$follow_count = $this->followRepository->countFollowToByUser($id);
-        //$follow_from_count = $this->followRepository->countFollowFromByUser($id);
 
         return view('user.show', compact(
             'user',
@@ -146,10 +143,10 @@ class UserController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param User $user
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(User $user)
     {
         //
         if(!\Auth::user()->can('user-edit')){
@@ -158,11 +155,10 @@ class UserController extends BaseController
 
         $roles = Role::orderBy('id', 'ASC')->get();
         $sexList = UserSex::all();
-        $userItem = User::find($id);
-        $userPosts = $this->postRepository->getPreviewPostsListByUser($id, 10);
+        $userPosts = $this->postRepository->getPreviewPostsListByUser($user->id, 10);
 
         return view('user.edit', compact(
-            'userItem',
+            'user',
             'roles',
             'sexList',
             'userPosts'
@@ -173,7 +169,7 @@ class UserController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  UserAdmUpdateRequest $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -181,15 +177,15 @@ class UserController extends BaseController
     {
         //
         if(!\Auth::user()->can('user-edit')){
-            return response()->json(['message' => 'У вас недостаточно прав. Попробуйте позже.']);
+            return response()->json(['message' => 'У вас недостаточно прав. Попробуйте позже.'], 404);
         }
 
         $data = $request->all();
-        $user = $this->userRepository->getEdit($id);
+        $user = User::find($id);
 
         $result = $user->update($data);
         if(!$result){
-            return response()->json(['message' => 'Ошибка при сохранении данных. Попробуйте позже.']);
+            return response()->json(['message' => 'Ошибка при сохранении данных. Попробуйте позже.'], 404);
         }
         return response()->json(['message' => 'Данные успешно сохранены.']);
     }

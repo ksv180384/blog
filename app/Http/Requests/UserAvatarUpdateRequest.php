@@ -38,7 +38,7 @@ class UserAvatarUpdateRequest extends FormRequest
     {
         return [
             'avatar.file' => 'Аватар должен быть файлом.',
-            'avatar.max' => 'Аватар превышает максимально допустимый размер файла (:max).',
+            'avatar.size' => 'Аватар превышает максимально допустимый размер файла (:max).',
             'avatar.mimes' => 'Аватар должен быть файлом формата jpg, jpeg, gif, png.',
         ];
     }

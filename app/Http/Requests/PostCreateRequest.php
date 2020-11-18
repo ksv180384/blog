@@ -26,7 +26,7 @@ class PostCreateRequest extends FormRequest
         return [
             //
             'user_id' => 'required|exists:users,id',
-            'img' => 'nullable|file|mimes:jpeg,jpg,gif,png|size:7168',
+            'img' => 'nullable|file|mimes:jpeg,jpg,gif,png|max:7168',
             'excerpt' => 'max:500',
             'content' => 'min:2',
         ];
@@ -36,7 +36,7 @@ class PostCreateRequest extends FormRequest
     {
         return [
             'avatar.file' => 'Аватар должен быть файлом формата jpg, jpeg, gif, png.',
-            'avatar.size' => 'Аватар превышает максимально допустимый размер файла (:attribute).',
+            'avatar.size' => 'Аватар превышает максимально допустимый размер файла (:max).',
             'avatar.mimes' => 'Аватар должен быть файлом формата jpeg, jpg, gif, png.',
             'user_id.required' => 'Не задан идентификатор пользователя.',
             'user_id.exists' => 'Неверно задан идентификатор пользователя.',

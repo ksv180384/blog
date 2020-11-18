@@ -1,6 +1,6 @@
 <div class="post">
     <div class="user-block">
-        <div class="div-img-circle" style="background-image: url({{ $post->user->avatar }})"></div>
+        <div class="div-img-circle" style="background-image: url({{ Storage::url($post->user->avatar) }})"></div>
         <span class="username">
             <a href="{{ route('adm_post.show', $post->id) }}">{{ $post->title }}</a>
             @if(Auth::check() && Auth::user()->can('blog-posts-edit'))
@@ -15,15 +15,9 @@
             <span title="Время публикации">
                 @if($post->published_at)
                     <strong>
-                        {{ \Carbon\Carbon::createFromFormat(
-                                    'Y-m-d H:i:s',
-                                    $post->published_at
-                            )->format('H:i') }}
+                        {{ $post->published_at->format('H:i') }}
                     </strong>
-                    {{ \Carbon\Carbon::createFromFormat(
-                                    'Y-m-d H:i:s',
-                                    $post->published_at
-                            )->format('d.m.Y') }}
+                    {{ $post->published_at->format('d.m.Y') }}
                 @else
                     <span class="text-danger">неопубликованно</span>
                 @endif
@@ -34,7 +28,7 @@
     <div style="clear: both"></div>
     @if($post->getAttributes()['img'])
         <div>
-            <div class="post-excerpt-img" style="background-image: url({{  $post->img }});">
+            <div class="post-excerpt-img" style="background-image: url({{  Storage::url($post->img) }});">
 
             </div>
             <div class="post-excerpt">

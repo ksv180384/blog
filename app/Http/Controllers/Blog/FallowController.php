@@ -33,8 +33,8 @@ class FallowController extends BaseController
     public function index()
     {
         //
-        $posts = $this->followRepository->getFollowsPostsByUser(\Auth::user()->id, 10) ?: [];
-        $follows_list = $this->followRepository->getFollowsByUser(\Auth::user()->id) ?: [];
+        $posts = $this->followRepository->getFollowsPostsByUser(\Auth::id(), 10) ?: [];
+        $follows_list = $this->followRepository->getFollowsByUser(\Auth::id()) ?: [];
 
         $title = 'Подписан';
 
@@ -54,7 +54,7 @@ class FallowController extends BaseController
     public function add(FollowRequest $request){
 
         if ($request->to_user_id == \Auth::user()->id){
-            return response()->json(["success" => "N", "message" => "Вы не можете отслеживать свои посты."]);
+            return response()->json(['message' => 'Вы не можете отслеживать свои посты.'], 404);
         }
 
         $Follow = Follows::create([
@@ -63,35 +63,33 @@ class FallowController extends BaseController
         ]);
 
         if(!$Follow){
-            return response()->json(["success" => "N", "message" => "Ошибка. Попробуйте позже."]);
+            return response()->json(['message' => 'Ошибка. Попробуйте позже.'], 404);
         }
 
-        $User = User::where('id', '=', $request->to_user_id)->first();
+        $User = User::find($request->to_user_id);
         $follow_count = $this->followRepository->countFollowToByUser($request->to_user_id);
 
         $follow_check = $Follow;
         return response()->json([
-            "success" => "Y",
-            "message" => "Теперь вы отслеживаете посты пользователя " . $User->name . ".",
-            "follow_count" => $follow_count,
-            "html" => view('user.profile.btn.btn_follow_remove', compact( 'follow_check'))->render(),
+            'message' => 'Теперь вы отслеживаете посты пользователя ' . $User->name . '.',
+            'follow_count' => $follow_count,
+            'html' => view('user.profile.btn.btn_follow_remove', compact( 'follow_check'))->render(),
         ]);
     }
 
     /**
-     * @param $id - идентификатор подписки
+     * @param int $id - идентификатор подписки
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
     public function destroy($id){
-        $id = (int)$id;
-        $Follow = Follows::where('id', '=', $id)->first();
+        $Follow = Follows::find($id);
 
         // Проверяем подписку, принадлежит ли она текущему пользователю
         if($Follow->from_user_id != \Auth::user()->id){
-            return response()->json(["success" => "N", "message" => "У вас недостаточно прав."]);
+            return response()->json(['message' => 'У вас недостаточно прав.'], 404);
         }
-        $User = User::where('id', '=', $Follow->to_user_id)->first();
+        $User = User::find($Follow->to_user_id);
         $from_user_id = $Follow->from_user_id;
         // Удаляем связь отслеживания постов пользователя
         $Follow->delete();
@@ -99,10 +97,9 @@ class FallowController extends BaseController
 
         $user_item = $User;
         return response()->json([
-            "success" => "Y",
-            "message" => "Вы больше не отслеживаете посты пользователя " . $User->name . ".",
-            "follow_count" => $follow_count,
-            "html" => view('user.profile.btn.btn_follow_add', compact('user_item'))->render(),
+            'message' => 'Вы больше не отслеживаете посты пользователя ' . $User->name . ".",
+            'follow_count' => $follow_count,
+            'html' => view('user.profile.btn.btn_follow_add', compact('user_item'))->render(),
         ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models\User;
 
 use App\Models\Blog\Follows;
 use App\Models\Blog\Post;
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,6 +12,23 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * Class User
+ * @package App\Models\User
+ * @property int id
+ * @property string name
+ * @property string email
+ * @property Carbon email_verified_at
+ * @property string password
+ * @property string avatar
+ * @property int sex
+ * @property Carbon birthday
+ * @property string residence
+ * @property string description
+ * @property int adm
+ * @property Carbon created_at
+ * @property Carbon updated_at
+ */
 class User extends Authenticatable
 {
     use Notifiable;
@@ -130,29 +148,21 @@ class User extends Authenticatable
 
     /**
      * Установить аватар пользователя.
-     *
+     * @param string $avatar
      * @return void
      */
     public function getAvatarAttribute($avatar)
     {
-        if(empty($avatar)){
-            $avatar = 'no-avatar.png';
-        }
-
-        return $avatar;
+        return !empty($avatar) ? $avatar : 'no-avatar.png';
     }
 
     /**
      * Установить пол пользователя.
-     *
+     * @param string $sex_title
      * @return void
      */
     public function getSexTitleAttribute($sex_title)
     {
-        if(empty($sex_title)){
-            $sex_title = 'Нет';
-        }
-
-        return $sex_title;
+        return !empty($sex_title) ? $sex_title : 'Нет';
     }
 }

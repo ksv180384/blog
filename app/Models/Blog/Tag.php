@@ -4,6 +4,14 @@ namespace App\Models\Blog;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Tag
+ * @package App\Models\Blog
+ * @property int id
+ * @property string title
+ * @property string active
+ *
+ */
 class Tag extends Model
 {
     /**
