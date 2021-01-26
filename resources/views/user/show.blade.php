@@ -94,13 +94,13 @@
                                                 <strong>Имя</strong> <span class="d-block">{{ $user->name }}</span>
                                             </li>
                                             <li class="list-group-item">
-                                                <strong>Пол</strong> <span class="float-right">{{ $user->sexData->title }}</span>
+                                                <strong>Пол</strong> <span class="float-right">{{ optional($user->gender)->title }}</span>
                                             </li>
                                             <li class="list-group-item">
-                                                <strong>Дата рождения</strong> <span class="d-block">{{ $user->birthday }}</span>
+                                                <strong>Дата рождения</strong> <span class="d-block">{{ optional($user->birthday)->format('d.m.Y') }}</span>
                                             </li>
                                             <li class="list-group-item">
-                                                <strong>О себе</strong> <span class="d-block">{{ $user->description }}</span>
+                                                <strong>О себе</strong> <span class="d-block">{!! @nl2br(@htmlspecialchars($user->description)) !!}</span>
                                             </li>
                                             <li class="list-group-item">
                                                 <strong>Место проживания</strong> <span class="d-block">{{ $user->residence }}</span>

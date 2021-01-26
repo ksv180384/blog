@@ -1,7 +1,9 @@
 $(document).ready(function(){
 
+    const body = $('body');
+
     // Отслеживаем посты пользователя
-    $('body').on('submit', '#sendComment', function(e){
+    body.on('submit', '#sendComment', function(e){
         e.preventDefault();
 
         const thisBtn = $('#sendCommentBtn');

@@ -1,7 +1,9 @@
 $(document).ready(function(){
 
+    const body = $('body');
+
     // Публикуем пост
-    $('body').on('click', '#published, #offPublished', function(e){
+    body.on('click', '#published, #offPublished', function(e){
         e.preventDefault();
 
         const thisBtn = $(this);

@@ -27,16 +27,9 @@ class PostRepository extends CoreRepository
      */
     public function getPost($id){
         $posts = $this->startConditions()
-            ->select([
-            'id',
-            'user_id',
-            'img',
-            'title',
-            'excerpt',
-            'published_at',
-            'created_at',
-            'updated_at'
-        ])->where('id', '=', $id)
+            ->with(['comments.user'])
+            ->withCount(['comments', 'likes'])
+            ->where('id', '=', $id)
             ->whereNotNull('published_at')
             ->first();
 
@@ -46,20 +39,13 @@ class PostRepository extends CoreRepository
     /**
      * Получает список постов для страницы со списком постов. Не включет в себя полную статью (content)
      * @param int $paginate
-     * @return \Illuminate\Support\Collection
+     * @return LengthAwarePaginator
      */
     public function getPreviewPostsList($paginate = 10){
         $posts = $this->startConditions()
-            ->select([
-            'id',
-            'user_id',
-            'img',
-            'title',
-            'excerpt',
-            'published_at',
-            'created_at',
-            'updated_at'
-        ])->whereNotNull('published_at')->orderBy('published_at', 'desc')->paginate($paginate);
+            ->with(['user', 'tags', 'checkUserLike'])
+            ->withCount(['comments', 'likes'])
+            ->whereNotNull('published_at')->orderBy('published_at', 'desc')->paginate($paginate);
 
         return $posts;
     }
@@ -71,16 +57,9 @@ class PostRepository extends CoreRepository
      */
     public function getPreviewPostsListAdm($paginate = 10){
         $posts = $this->startConditions()
-            ->select([
-                'id',
-                'user_id',
-                'img',
-                'title',
-                'excerpt',
-                'published_at',
-                'created_at',
-                'updated_at'
-            ])->whereNotNull('published_at')->orderBy('published_at', 'desc')->paginate($paginate);
+            ->with(['user', 'tags', 'checkUserLike'])
+            ->withCount(['comments', 'likes'])
+            ->whereNotNull('published_at')->orderBy('published_at', 'desc')->paginate($paginate);
 
         return $posts;
     }
@@ -93,16 +72,9 @@ class PostRepository extends CoreRepository
      */
     public function getPreviewPostsListByUser($user_id, $paginate = 10){
         $posts = $this->startConditions()
-            ->select([
-            'id',
-            'user_id',
-            'img',
-            'title',
-            'excerpt',
-            'published_at',
-            'created_at',
-            'updated_at'
-        ])->where('user_id', '=', $user_id)
+            ->with(['user', 'tags', 'checkUserLike'])
+            ->withCount(['comments', 'likes'])
+            ->where('user_id', '=', $user_id)
             ->whereNotNull('published_at')
             ->orderBy('published_at', 'desc')
             ->paginate($paginate);
@@ -118,16 +90,9 @@ class PostRepository extends CoreRepository
      */
     public function getPreviewPostsListByUserPublishedAll($user_id, $paginate = 10){
         $posts = $this->startConditions()
-            ->select([
-                'id',
-                'user_id',
-                'img',
-                'title',
-                'excerpt',
-                'published_at',
-                'created_at',
-                'updated_at'
-            ])->where('user_id', '=', $user_id)
+            ->with(['user', 'tags', 'checkUserLike'])
+            ->withCount(['comments', 'likes'])
+            ->where('user_id', '=', $user_id)
             ->orderBy('created_at', 'desc')
             ->paginate($paginate);
 
@@ -140,28 +105,8 @@ class PostRepository extends CoreRepository
      * @return \Illuminate\Support\Collection
      */
     public function getPostsList($paginate = 5){
-        $columns = [
-            'posts.id',
-            'posts.user_id',
-            'posts.title',
-            'posts.content',
-            'posts.published_at',
-            'posts.created_at',
-            'posts.updated_at',
-            'users.name',
-            'users.avatar',
-            'users.avatar_select',
-            'users.view_name',
-            'users.view_sex',
-            'users.date_active',
-            'users.date_registration',
-            'users.adm',
-            'user_sex.title AS sex_title',
-            'user_status.title AS status_title',
-            'roles.name AS role_name',
-        ];
         $posts = $this->startConditions()
-            ->select($columns)
+            ->with(['user', 'tags', 'commentsCount', 'likesCount', 'checkUserLike'])
             ->leftJoin('users', 'users.id', '=', 'posts.user_id')
             ->leftJoin('user_sex', 'user_sex.id', '=', 'users.sex')
             ->leftJoin('user_status', 'user_status.id', '=', 'users.status')
@@ -169,10 +114,6 @@ class PostRepository extends CoreRepository
             ->leftJoin('roles', 'model_has_roles.role_id', '=', 'roles.id')
             ->orderBy('posts.published_at', 'DESC')
             ->paginate($paginate);
-
-        foreach ($posts as $k => $post){
-            $posts[$k]->avatar = User::activeAvatar($post->avatar);
-        }
 
         return $posts;
     }
@@ -186,16 +127,9 @@ class PostRepository extends CoreRepository
     public function getPostsListByTag($tag_id, $paginate = 10){
 
         $posts = $this->startConditions()
-            ->select([
-            'posts.id',
-            'posts.user_id',
-            'posts.img',
-            'posts.title',
-            'posts.excerpt',
-            'posts.published_at',
-            'posts.created_at',
-            'posts.updated_at'
-        ])->join('post_to_tag', 'post_to_tag.post_id', '=', 'posts.id')
+            ->with(['user', 'tags', 'checkUserLike'])
+            ->withCount(['comments', 'likes'])
+            ->join('post_to_tag', 'post_to_tag.post_id', '=', 'posts.id')
           ->where('post_to_tag.tag_id', '=', $tag_id)
           ->whereNotNull('published_at')
            ->orderBy('published_at', 'desc')->paginate($paginate);

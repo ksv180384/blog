@@ -1,11 +1,25 @@
 $(document).ready(function(){
 
+    const body = $('body');
+
+    datepicker('#inputBirthday', {
+        startDay: 1,
+        customDays: ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'],
+        customMonths: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+        overlayButton: 'Выбрать',
+        overlayPlaceholder: 'Введите год',
+        formatter: (input, date, instance) => {
+            const value = date.toLocaleDateString('ru-RU');
+            input.value = value // => '1/1/2099'
+        }
+    });
+
     // Сохраняет данные пользователя
-    $('body').on('submit', '#formAddUserData', function(e){
+    body.on('submit', '#formAddUserData', function(e){
         e.preventDefault();
 
-        var btn = $('#btnSaveUserData');
-        var $form = $(this);
+        const btn = $('#btnSaveUserData');
+        const $form = $(this);
 
         btn.prop('disabled', true);
 
@@ -30,7 +44,7 @@ $(document).ready(function(){
     });
 
     // Сохраняет аватар пользователя
-    $('body').on('change', '#inputUserAvatar', function(e){
+    body.on('change', '#inputUserAvatar', function(e){
         e.preventDefault();
 
         const $form = $('#formAddUserAvatar');

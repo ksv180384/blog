@@ -24,7 +24,8 @@ class CommentRepository extends CoreRepository
      */
     public function getCommentsByPost(int $post_id, $paginate = 10){
 
-        $comments = $this->startConditions()->where('post_id', $post_id)->with('user')->paginate($paginate);
+        $comments = $this->startConditions()
+            ->where('post_id', $post_id)->with('user')->paginate($paginate);
         return $comments;
     }
 
@@ -59,7 +60,7 @@ class CommentRepository extends CoreRepository
      * @return mixed
      */
     public function countByPost(int $post_id){
-        return $this->startConditions()->where('post_id', $post_id)->get()->count();
+        return $this->startConditions()->where('post_id', $post_id)->count();
     }
 
     /**

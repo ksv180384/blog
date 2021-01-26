@@ -2,6 +2,7 @@
 
 @push('scripts')
     <script src="{{ asset('js/blog/post/follow_list.js') }}"></script>
+    <script src="{{ asset('js/blog/like.js') }}"></script>
 @endpush
 
 @section('content')
@@ -32,7 +33,7 @@
 
                             @if($posts)
                                 @foreach($posts as $post)
-                                    {{ view('blog.post.post_list_item', compact('post', 'tags_to_post')) }}
+                                    {{ view('blog.post.post_list_item', compact('post')) }}
                                 @endforeach
 
                                 <hr>
@@ -50,33 +51,31 @@
                 <div class="col-xs-12 col-sm-12 col-md-3">
                     <div class="card">
                         <div class="card-body p-0">
-                            @if($follows_list)
-                                @foreach($follows_list as $follow)
-                                    <div class="block p-2 js-user-item">
-                                        <div class="div-img-circle mr-2"
-                                             style="background-image: url({{ Storage::url($follow->userTo->avatar) }})"></div>
-                                        <span class="username">
-                                            <a href="{{ route('profile.show', $follow->userTo->id) }}">
-                                                {{ $follow->userTo->name }}
-                                            </a>
-                                            <span class="float-right">
-                                                <form action="{{ route('follow.destroy', $follow->id) }}"
-                                                      method="post" class="js-form-follow-remove">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-tool" title="Отписаться">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </form>
-                                            </span>
+                            @forelse($user->followed as $follow)
+                                <div class="block p-2 js-user-item">
+                                    <div class="div-img-circle mr-2"
+                                         style="background-image: url({{ Storage::url($follow->avatar) }})"></div>
+                                    <span class="username">
+                                        <a href="{{ route('profile.show', $follow->id) }}">
+                                            {{ $follow->name }}
+                                        </a>
+                                        <span class="float-right">
+                                            <form action="{{ route('follow.destroy', $follow->id) }}"
+                                                  method="post" class="js-form-follow-remove">
+                                                @csrf
+                                                <button type="submit" class="btn btn-tool" title="Отписаться">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
                                         </span>
-                                        
-                                    </div>
-                                @endforeach
-                            @else
+                                    </span>
+
+                                </div>
+                            @empty
                                 <div class="text-center">
                                     Нет отслеживаемых
                                 </div>
-                            @endif
+                            @endforelse
                         </div>
                     </div>
                 </div>

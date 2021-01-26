@@ -122,16 +122,17 @@ class UserController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  User $user
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show($id)
     {
         //
         if(!\Auth::user()->can('user-list')){
             abort(404, 'У вас недостаточно прав.');
         }
 
+        $user = $this->userRepository->getUser($id);
         $userPosts = $this->postRepository->getPreviewPostsListByUserPublishedAll($user->id, 10);
 
         return view('user.show', compact(

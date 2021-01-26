@@ -73,7 +73,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'birthday' => 'datetime',
+        'birthday' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -83,19 +83,42 @@ class User extends Authenticatable
 
     /**
      * Пол пользователя
-     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function sexData(){
+    public function gender(){
         return $this->belongsTo(UserSex::class, 'sex', 'id');
     }
 
+    /**
+     * Роли пользователя
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function role(){
         return $this->belongsToMany(Role::class, 'model_has_roles', 'model_id', 'role_id');
     }
 
+    /**
+     * Посты пользователя
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function posts(){
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Пользователи на которых подписан
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function followed(){
+        return $this->hasManyThrough(User::class, Follows::class, 'from_user_id', 'id', 'id', 'to_user_id');
+    }
+
+    /**
+     * Пользователи которые подписаны
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function followers(){
+        return $this->hasManyThrough(User::class, Follows::class, 'to_user_id', 'id', 'id', 'from_user_id');
     }
 
     /**

@@ -5,6 +5,14 @@ namespace App\Models\Blog;
 use App\Models\User\User;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Comment
+ * @package App\Models\Blog
+ * @property int user_id
+ * @property int post_id
+ * @property string comment
+ * @property User user
+ */
 class Comment extends Model
 {
     /**

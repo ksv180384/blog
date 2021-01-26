@@ -45,25 +45,25 @@
         <div class="col-xs-12 col-sm-12 col-md-6">
             @if(Auth::check())
                 <div class="btn-like{{ $post->checkUserLike ? ' like-active' : '' }}">
-                    <a href="{{ route('post.like-add', $post->id) }}"
+                    <a href="{{ route('post.toggle_like', $post->id) }}"
                        class="btn-like-add link-black text-sm js-like"
                     >
-                        <span class=""><i class="far fa-heart"></i></span> Нравится (<span class="js-like-count-el">{{ $post->likesCount }}</span>)
+                        <span class=""><i class="far fa-heart"></i></span> Нравится (<span class="js-like-count-el">{{ $post->likes_count }}</span>)
                     </a>
-                    <a href="{{ route('post.like-remove', $post->id) }}"
+                    <a href="{{ route('post.toggle_like', $post->id) }}"
                        class="btn-like-remove link-black text-sm js-like"
                     >
-                        <span class="text-success"><i class="fas fa-heart"></i></span> Нравится (<span class="js-like-count-el">{{ $post->likesCount }}</span>)
+                        <span class="text-success"><i class="fas fa-heart"></i></span> Нравится (<span class="js-like-count-el">{{ $post->likes_count }}</span>)
                     </a>
                 </div>
             @else
                 <span class="text-sm">
-                    <i class="far fa-heart"></i> Нравится (<span class="js-like-count-el">{{ $post->likesCount }}</span>)
+                    <i class="far fa-heart"></i> Нравится (<span class="js-like-count-el">{{ $post->likes_count }}</span>)
                 </span>
             @endif
 
             <span class="text-sm ml-2">
-                <i class="far fa-comments mr-1"></i> Комментариев ({{ $post->commentsCount }})
+                <i class="far fa-comments mr-1"></i> Комментариев ({{ $post->comments_count }})
             </span>
         </div>
 

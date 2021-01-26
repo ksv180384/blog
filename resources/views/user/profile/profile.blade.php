@@ -2,6 +2,8 @@
 
 @push('scripts')
     <script src="{{ asset('js/profile/index.js') }}"></script>
+    <link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
+    <script src="https://unpkg.com/js-datepicker"></script>
 @endpush
 @section('content')
     <!-- Content Wrapper. Contains page content -->
@@ -112,7 +114,7 @@
                                                         <select class="form-control" id="inputSex" name="sex">
                                                             <option value="">Нет</option>
                                                             @foreach($userSexList as $sex)
-                                                                <option value="{{ $sex->id }}"{{ $sex->id == $user->sex ? ' selected' : '' }}>
+                                                                <option value="{{ $sex->id }}"{{ $sex->id == optional($user->gender)->id ? ' selected' : '' }}>
                                                                     {{ $sex->title }}
                                                                 </option>
                                                             @endforeach
@@ -123,9 +125,10 @@
                                                         <input type="text"
                                                                class="form-control"
                                                                name="birthday"
+                                                               autocomplete="off"
                                                                id="inputBirthday"
                                                                placeholder="Дата рождения"
-                                                               value="{{ $user->birthday }}"
+                                                               value="{{ optional($user->birthday)->format('d.m.Y') }}"
                                                         >
                                                     </div>
                                                     <div class="form-group">

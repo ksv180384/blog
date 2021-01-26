@@ -86,7 +86,7 @@
                                                 <textarea name="content"
                                                           class="form-control wysiwyg"
                                                           cols="30"
-                                                          rows="4">{{ old('content', $post->content) }}</textarea>
+                                                          rows="4">{{ old('content', $post->showHtmlContent) }}</textarea>
                                             </a>
                                         </div>
                                         <div class="list-group-item">

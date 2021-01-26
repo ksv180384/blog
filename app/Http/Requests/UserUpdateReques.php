@@ -30,7 +30,7 @@ class UserUpdateReques extends FormRequest
             'password' => 'min:6|confirmed',
             'avatar' => 'nullable|file|mimes:jpeg,jpg,gif,png|max:7168',
             'sex' => 'nullable|exists:user_sex,id',
-            'birthday' => 'nullable|date',
+            'birthday' => 'nullable|date|date_format:Y-m-d',
             'residence' => 'max:100',
             'description' => 'max:5000',
             'adm' => 'digits::1',
@@ -55,10 +55,28 @@ class UserUpdateReques extends FormRequest
             'password.confirmed' => 'Неверно подтвержден пароль.',
             'sex.exists' => 'Неверно задан пол.',
             'birthday.date' => 'Неверная дата рождения',
+            'birthday.date_format' => 'Неверный формат даты рождения',
             'residence.min' => 'Поле "Место проживания" должно содержать не менее 2-х символов.',
             'residence.max' => 'Поле "Место проживания" должно содержать не более 5000 символов.',
             'description.max' => 'Поле "о себе" должно содержать не более 5000 символов.',
             'adm.digits' => 'Неверно задан adm',
         ];
+    }
+
+    /**
+     * Обработка данных запроса перед валидацией
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    public function getValidatorInstance()
+    {
+
+        $data = $this->all();
+
+        $data['birthday'] = date('Y-m-d', strtotime($data['birthday']));
+
+
+        $this->getInputSource()->replace($data);
+
+        return parent::getValidatorInstance();
     }
 }

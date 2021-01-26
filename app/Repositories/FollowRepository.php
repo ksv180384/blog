@@ -28,16 +28,8 @@ class FollowRepository extends CoreRepository
      */
     public function getFollowsPostsByUser(int $user_id, int $paginate = 10){
 
-        $posts = Post::select([
-            'posts.id',
-            'posts.user_id',
-            'posts.img',
-            'posts.title',
-            'posts.excerpt',
-            'posts.published_at',
-            'posts.created_at',
-            'posts.updated_at'
-        ])
+        $posts = Post::with(['user', 'tags', 'checkUserLike'])
+            ->withCount(['comments', 'likes'])
             ->join('follows', 'posts.user_id', '=', 'follows.to_user_id')
             ->where('follows.from_user_id', '=', $user_id)
             ->whereNotNull('published_at')
@@ -45,21 +37,6 @@ class FollowRepository extends CoreRepository
             ->paginate($paginate);
 
         return $posts;
-    }
-
-    /**
-     * Получем пользователей на которых подписаны
-     * @param int $user_id
-     * @return mixed
-     */
-    public function getFollowsByUser(int $user_id){
-
-        $users = $this->startConditions()
-                    ->join('users', 'users.id', '=', 'follows.to_user_id')
-                    ->where('follows.from_user_id', '=', $user_id)
-                    ->get();
-
-        return $users;
     }
 
     /**

@@ -75,9 +75,11 @@
                             <div class="card-body">
                                 <div class="tab-content">
                                     <div class="tab-pane" id="activity">
-                                        @foreach($posts as $post)
+                                        @forelse($posts as $post)
                                             {{ view('blog.post.post_list_item', compact('post')) }}
-                                        @endforeach
+                                        @empty
+
+                                        @endforelse
 
                                         <hr>
 

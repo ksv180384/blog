@@ -30,9 +30,11 @@
                     <div class="card">
                         <div class="card-body">
 
-                            @foreach($posts as $post)
-                                {{ view('blog.post.post_list_item', compact('post', 'tags_to_post')) }}
-                            @endforeach
+                            @forelse($posts as $post)
+                                {{ view('blog.post.post_list_item', compact('post')) }}
+                            @empty
+
+                            @endforelse
 
                             <hr>
 

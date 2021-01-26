@@ -18,6 +18,11 @@ use Illuminate\Database\Eloquent\Model;
  * @property Carbon $published_at
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property User user
+ * @property Tag tags
+ * @property Comment[] comments
+ * @property Like[] likes
+ * @property boolean checkUserLike
  */
 class Post extends Model
 {
@@ -57,9 +62,6 @@ class Post extends Model
 
     public $timestamps = true;
 
-    // Жадная загрузка поумодчанию
-    protected $with = ['user', 'tags', 'commentsCount', 'likesCount', 'checkUserLike'];
-
     /**
      * Пользователь
      *
@@ -77,28 +79,12 @@ class Post extends Model
         return $this->hasMany(Comment::class, 'post_id', 'id');
     }
 
-    public function commentsCount(){
-        return $this->hasOne(Comment::class)
-            ->selectRaw('post_id, count(*) as q')
-            ->groupBy('post_id');
-    }
-
     /**
      * Лайки
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function likes(){
         return $this->hasMany(Like::class, 'post_id', 'id');
-    }
-
-    /**
-     * Считаем лайки
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne|\Illuminate\Database\Query\Builder
-     */
-    public function likesCount(){
-        return $this->hasOne(Like::class)
-            ->selectRaw('post_id, count(*) as q')
-            ->groupBy('post_id');
     }
 
     /**
@@ -113,34 +99,6 @@ class Post extends Model
     }
 
     /**
-     * Количество коментариев
-     * @return int
-     */
-    public function getCommentsCountAttribute(){
-        if ( !array_key_exists('commentsCount', $this->relations)){
-            $this->load('commentsCount');
-        }
-
-        $related = $this->getRelation('commentsCount');
-
-        return ($related) ? (int) $related->q : 0;
-    }
-
-    /**
-     * Количество лайков
-     * @return int
-     */
-    public function getLikesCountAttribute(){
-        if ( !array_key_exists('likesCount', $this->relations)){
-            $this->load('likesCount');
-        }
-
-        $related = $this->getRelation('likesCount');
-
-        return ($related) ? (int) $related->q : 0;
-    }
-
-    /**
      * Проверяем наличие лайка пользователя к посту
      * @return int
      */
@@ -152,6 +110,19 @@ class Post extends Model
         $related = $this->getRelation('checkUserLike');
 
         return ($related) ? (boolean) $related->q : false;
+    }
+
+    /**
+     * Показываем пост убирая тег script
+     *
+     * @return void
+     */
+    public function getShowHtmlContentAttribute()
+    {
+        $htmlContent = str_replace('<script', '&lt;script', $this->content);
+        $htmlContent = str_replace('</script', '&lt;/script', $htmlContent);
+
+        return $htmlContent;
     }
 
     /**

@@ -1,5 +1,7 @@
 $(document).ready(function(){
 
+    const body = $('body');
+
     $('.select2').select2({
         theme: 'bootstrap4'
     });
@@ -10,7 +12,7 @@ $(document).ready(function(){
     });
 
     // Подставляет катринку
-    $('body').on('change', '#imgPost', function(e){
+    body.on('change', '#imgPost', function(e){
         e.preventDefault();
 
         const file = e.target.files[0];
@@ -28,12 +30,12 @@ $(document).ready(function(){
     });
 
     // Добавляет новый пост
-    $('body').on('submit', '#formPostUpdate', function(e){
+    body.on('submit', '#formPostUpdate', function(e){
         e.preventDefault();
 
-        var thisBtn = $('#btnAddPost');
-        var $form = $(this);
-        var formData = new FormData($form.get(0));
+        const thisBtn = $('#btnAddPost');
+        const $form = $(this);
+        const formData = new FormData($form.get(0));
 
         thisBtn.prop('disabled', true);
 

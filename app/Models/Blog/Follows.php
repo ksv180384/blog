@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  * @package App\Models\Blog
  * @property int from_user_id
  * @property int to_user_id
+ * @property User userFrom
+ * @property User userTo
  */
 class Follows extends Model
 {
@@ -38,9 +40,6 @@ class Follows extends Model
     protected $casts = [];
 
     public $timestamps = false;
-
-    // Жадная загрузка поумодчанию
-    protected $with = ['userFrom', 'userTo'];
 
     /**
      * Пользователь который подписался

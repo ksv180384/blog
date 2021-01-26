@@ -60,10 +60,11 @@ class ProfileController extends BaseController
     public function show($id)
     {
         $user_item = User::findOrFail($id);
-        $posts = $user_item->posts()->paginate(10);
+        $posts = $user_item->posts()->with(['user', 'tags', 'commentsCount', 'likesCount', 'checkUserLike'])->paginate(10);
 
         $follow_check = [];
         if(\Auth::check()){
+            // Проверяем подписаны ли мы на пользователя
             $follow_check = $this->followRepository->followCheck(\Auth::id(), $user_item->id);
         }
 
@@ -107,17 +108,17 @@ class ProfileController extends BaseController
 
         $user = \Auth::user();
 
-        $path = 'uploads/users/' . \Auth::id() . '/avatar';
+        $path = 'users/' . \Auth::id() . '/avatar';
 
         $result = $request->file('avatar')->store($path, 'public');
 
-        \Storage::delete('public/'.$user->getOriginal()['avatar']);
+        \Storage::delete($user->getOriginal()['avatar']);
 
         $result_update = $user->update(['avatar' => $result]);
 
         if(!$result_update){
-            return response()->json(['message' => 'Ошибка при сохранении аватара. Попробуйте позже.']);
+            return response()->json(['message' => 'Ошибка при сохранении аватара. Попробуйте позже.'], 404);
         }
-        return response()->json(['message' => 'Данные успешно сохранены', 'url' => asset('/storage/' . $result)]);
+        return response()->json(['message' => 'Данные успешно сохранены', 'url' => \Storage::url($result)]);
     }
 }

@@ -55,7 +55,6 @@ class PostController extends BaseController
 
         return view('blog.post.my_posts', compact(
             'posts',
-            'tags_to_post',
             'title'
         ));
     }
@@ -74,7 +73,6 @@ class PostController extends BaseController
 
         return view('blog.post.tag_posts', compact(
             'posts',
-            'tags_to_post',
             'tag',
             'title'
         ));
@@ -142,19 +140,20 @@ class PostController extends BaseController
         }
 
         return response()->json([
-            'message' => 'Данные успешно сохранены', '
-            redirect' => route('post.my')
+            'message' => 'Данные успешно сохранены',
+            'redirect' => route('post.my')
         ]);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  Post $post
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Post $post)
+    public function show($id)
     {
+        $post = Post::withCount(['comments', 'likes'])->find($id);
         $like = \Auth::check() ? $this->likeRepository->getLikeToPostAndUser($post->id, \Auth::id()) : false;
         $title = $post->title;
         $comments = $this->commentRepository->getCommentsByPost($post->id);
@@ -206,15 +205,9 @@ class PostController extends BaseController
             return response()->json(['message' => 'У вас недостаточно прав.'], 404);
         }
 
-        $img_path = null;
         if($request->has('img')){
-            $img_path = request()
-                ->file('img')
-                ->store('posts');
-        }
-        if($img_path){
+            $img_path = request()->file('img')->store('posts');
             \Storage::delete($post->img);
-        }else{
             $post->img = $img_path;
         }
 
@@ -222,7 +215,7 @@ class PostController extends BaseController
             'title' => $request->input('title'),
             'excerpt' => $request->input('excerpt'),
             'content' => $request->input('content'),
-            'img' => $img_path,
+            'img' => $post->img,
         ];
 
         try {
@@ -231,7 +224,7 @@ class PostController extends BaseController
                 $post->update($post_update);
 
                 // Удаляем теги привязанные к посту
-                PostToTag::deleteTagsByPost($post->id);
+                $post->tags()->detach();
 
                 if ($request->tags) {
                     $tagsToPostList = [];
@@ -257,19 +250,24 @@ class PostController extends BaseController
      * @param int $id - идентификатор поста
      * @return \Illuminate\Http\JsonResponse
      */
-    public function addLike($id){
-        $id = (int)$id;
-        if(Like::checkLike($id, \Auth::id())){
-            return response()->json(['message' => 'Вы уже ставили лайк этому посту'], 404);
-        }
+    public function toggleLike($id){
+        $like = Like::where('post_id', (int)$id)->where('user_id', \Auth::id())->first();
 
-        $Like = Like::create([
-            'post_id' => $id,
-            'user_id' => \Auth::id(),
-        ]);
-
-        if(!$Like){
-            return response()->json(['message' => 'Ошибка. Попробуйте позже'], 404);
+        // Если пользователь уже ствил лайк, то удаляем
+        if($like){
+            if($like->user_id != \Auth::id()){
+                return response()->json(['message' => 'У вас недостаточно прав'], 404);
+            }
+            $type = 'remove';
+            if(!$like->delete()){
+                return response()->json(['message' => 'Ошибка. Попробуйте позже'], 404);
+            }
+        }else{
+            $type = 'add';
+            $Like = Like::create(['post_id' => $id,'user_id' => \Auth::id()]);
+            if(!$Like){
+                return response()->json(['message' => 'Ошибка. Попробуйте позже'], 404);
+            }
         }
 
         // Считаем лайки поста
@@ -277,38 +275,7 @@ class PostController extends BaseController
 
         return response()->json([
             'message' => '',
-            'type' => 'add',
-            'count' => $count,
-        ]);
-    }
-
-    /**
-     * Добавляет лайк к посту
-     * @param int $post_id - идентификатор поста
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function removeLike($post_id){
-        $post_id = (int)$post_id;
-
-        if(!\Auth::check()){
-            return response()->json(['message' => 'Вы не авторизованы'], 404);
-        }
-
-        $like = Like::where('post_id', '=', $post_id)->where('user_id', '=', \Auth::id())->first();
-        if(!$like){
-            return response()->json(['message' => 'Ошибка. Невозможно удалить лайк'], 404);
-        }
-
-        if(!$like->delete()){
-            return response()->json(['message' => 'Ошибка. Попробуйте позже']);
-        }
-
-        // Считаем лайки поста
-        $count = $this->likeRepository->countByPost($like->post_id);
-
-        return response()->json([
-            'message' => '',
-            'type' => 'remove',
+            'type' => $type,
             'count' => $count,
         ]);
     }

@@ -1,6 +1,8 @@
 $(document).ready(function(){
 
-    $('body').on('click', '.js-like', function (e) {
+    const body = $('body');
+
+    body.on('click', '.js-like', function (e) {
         e.preventDefault();
 
         const btn = $(this);

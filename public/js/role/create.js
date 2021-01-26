@@ -1,7 +1,9 @@
 $(document).ready(function () {
 
+    const body = $('body');
+
     // Сохраняет данные роли
-    $('body').on('submit', '#formRoleStore', function(e){
+    body.on('submit', '#formRoleStore', function(e){
         e.preventDefault();
 
         const btn = $('#btnFormRoleStore');

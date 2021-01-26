@@ -1,5 +1,8 @@
 $(document).ready(function(){
-    $('body').on('submit', '.js-form-follow-remove', function(e){
+
+    const body = $('body');
+
+    body.on('submit', '.js-form-follow-remove', function(e){
         e.preventDefault();
 
         const $form = $(this);
@@ -13,10 +16,6 @@ $(document).ready(function(){
         })
             .then(function (response) {
                 $button.prop('disabled', false);
-                if(response.data.success != 'Y'){
-                    toastr.error(response.data.message);
-                    return true;
-                }
                 toastr.success(response.data.message);
                 location.reload();
             })

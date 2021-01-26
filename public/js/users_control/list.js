@@ -1,6 +1,9 @@
 $(document).ready(function (e) {
+
+    const body = $('body');
+
     // Удаляем пользователя
-    $('body').on('click', '.js-delete-user', function(e){
+    body.on('click', '.js-delete-user', function(e){
         e.preventDefault();
 
         const thisEl = $(this);

@@ -49,10 +49,8 @@ Route::resource('roles', 'RoleController')->names('roles');
 Route::group(['namespace' => 'Blog', 'prefix' => 'blog'], function (){
     // Посты текущего пользователя
     Route::get('post/my', 'PostController@my')->name('post.my');
-    // Лайк посту
-    Route::post('post/like-add/{id}', 'PostController@addLike')->name('post.like-add');
-    // Удаляет лайк посту
-    Route::post('post/like-remove/{post_id}', 'PostController@removeLike')->name('post.like-remove');
+    // Удаляем - добавляем лайк
+    Route::post('post/toggle-like/{id}', 'PostController@toggleLike')->name('post.toggle_like');
 
     $methods = ['create', 'store', 'edit', 'update', 'show'];
     Route::resource('post', 'PostController')
@@ -65,7 +63,7 @@ Route::group(['namespace' => 'Blog', 'prefix' => 'blog'], function (){
         Route::get('tag/{id}', 'PostController@postsByTag')->name('post.tag');
 
         Route::post('follow/add', 'FallowController@add')->name('follow.add');
-        Route::post('follow/destroy/{id}', 'FallowController@destroy')->name('follow.destroy');
+        Route::post('follow/destroy/{to_user_id}', 'FallowController@destroy')->name('follow.destroy');
 
         // Комментарии к постам
         Route::post('comment/add', 'CommentController@store')->name('comment.add');

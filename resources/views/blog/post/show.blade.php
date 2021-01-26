@@ -51,30 +51,29 @@
                                 @endif
 
                                 <p>
-                                    {{ $post->content }}
+                                    {!! $post->showHtmlContent !!}
                                 </p>
 
                                 <hr>
 
                                 <div class="d-inline-block">
                                     @if(Auth::check())
-                                        @if($like)
-                                            <a href="{{ route('post.like-remove', $like->id) }}"
-                                               class="link-black text-sm text-success js-like">
-                                                <i class="far fa-thumbs-up mr-1"></i>
-                                                Нравится (<span class="js-like-count-el">{{ $post->likesCount }}</span>)
+                                        <div class="btn-like{{ $post->checkUserLike ? ' like-active' : '' }}">
+                                            <a href="{{ route('post.toggle_like', $post->id) }}"
+                                               class="btn-like-add link-black text-sm js-like"
+                                            >
+                                                <span class=""><i class="far fa-heart"></i></span> Нравится (<span class="js-like-count-el">{{ $post->likes_count }}</span>)
                                             </a>
-                                        @else
-                                            <a href="{{ route('post.like-add', $post->id) }}"
-                                               class="link-black text-sm js-like">
-                                                <i class="far fa-thumbs-up mr-1"></i>
-                                                Нравится (<span class="js-like-count-el">{{ $post->likesCount }}</span>)
+                                            <a href="{{ route('post.toggle_like', $post->id) }}"
+                                               class="btn-like-remove link-black text-sm js-like"
+                                            >
+                                                <span class="text-success"><i class="fas fa-heart"></i></span> Нравится (<span class="js-like-count-el">{{ $post->likes_count }}</span>)
                                             </a>
-                                        @endif
+                                        </div>
                                     @else
                                         <span class="text-sm">
                                             <i class="far fa-thumbs-up mr-1"></i>
-                                            Нравится (<span class="js-like-count-el">{{ $post->likesCount }}</span>)
+                                            Нравится (<span class="js-like-count-el">{{ $post->likes_count }}</span>)
                                         </span>
                                     @endif
                                 </div>
@@ -93,7 +92,7 @@
 
                     <div class="card">
                         <div class="content-header">
-                            Комментарии (<span id="countComments">{{ $post->commentsCount }}</span>)
+                            Комментарии (<span id="countComments">{{ $post->comments_count }}</span>)
                         </div>
                         <div class="card-body">
                             <div id="commentsList" class="">

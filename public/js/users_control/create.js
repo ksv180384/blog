@@ -1,12 +1,13 @@
 $(document).ready(function () {
 
+    const body = $('body');
+
     // Создаем пользователя
-    $('body').on('click', '#btnUserCreate', function(e){
+    body.on('click', '#btnUserCreate', function(e){
         e.preventDefault();
 
-        var btn = $(this);
-
-        var $form = $('#formUserCreate');
+        const btn = $(this);
+        const $form = $('#formUserCreate');
 
         btn.prop('disabled', true);
 

@@ -1,14 +1,27 @@
 $(document).ready(function () {
+
+    const body = $('body');
+
+    datepicker('#inputBirthday', {
+        startDay: 1,
+        customDays: ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'],
+        customMonths: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+        overlayButton: 'Выбрать',
+        overlayPlaceholder: 'Введите год',
+        formatter: (input, date, instance) => {
+            const value = date.toLocaleDateString('ru-RU');
+            input.value = value // => '1/1/2099'
+        }
+    });
+
     // Сохраняет данные пользователя
-    $('body').on('click', '#btnUserUpdate', function(e){
+    body.on('click', '#btnUserUpdate', function(e){
         e.preventDefault();
 
-        var btn = $(this);
-
-        var $form = $('#formUserUpdate');
+        const btn = $(this);
+        const $form = $('#formUserUpdate');
 
         btn.prop('disabled', true);
-
         axios({
             method: $form.attr('method'),
             url: $form.attr('action'),
@@ -30,10 +43,10 @@ $(document).ready(function () {
     });
 
     // меняет рольпользователя
-    $('body').on('change', '#roleUser', function(e){
+    body.on('change', '#roleUser', function(e){
         e.preventDefault();
 
-        var $form = $('#formControlUser');
+        const $form = $('#formControlUser');
 
         axios({
             method: $form.attr('method'),
@@ -55,15 +68,13 @@ $(document).ready(function () {
     });
 
     // Меняем пароль пользователя
-    $('body').on('click', '#btnChangePassword', function(e){
+    body.on('click', '#btnChangePassword', function(e){
         e.preventDefault();
 
-        var btn = $(this);
-
-        var $form = $('#formChangePassword');
+        const btn = $(this);
+        const $form = $('#formChangePassword');
 
         btn.prop('disabled', true);
-
         axios({
             method: $form.attr('method'),
             url: $form.attr('action'),

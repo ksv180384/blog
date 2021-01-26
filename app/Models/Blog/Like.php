@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @package App\Models\Blog
  * @property int post_id
  * @property int user_id
+ * @property User user
  */
 class Like extends Model
 {
@@ -39,24 +40,12 @@ class Like extends Model
 
     public $timestamps = false;
 
-
     /**
-     * Тег
+     * Пользователь
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user(){
         return $this->belongsTo(User::class, 'user_id', 'id');
-    }
-
-
-    /**
-     * Проверяет сьавил ли пользователь лайк посту
-     * @param int $post_id - идентификатор поста
-     * @param int $user_id - идентификатор пользователя
-     * @return bool
-     */
-    public static function checkLike(int $post_id, int $user_id = 0){
-        return self::where('post_id', '=', $post_id)->where('user_id', '=', $user_id)->first() ? true : false;
     }
 }

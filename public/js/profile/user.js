@@ -1,13 +1,15 @@
 $(document).ready(function(){
 
+    const body = $('body');
+
     // Отслеживаем посты пользователя
-    $('body').on('submit', '#formAddFollow', function(e){
+    body.on('submit', '#formAddFollow', function(e){
         e.preventDefault();
 
         const btn = $('#followBtn');
         const $form = $(this);
 
-        thisBtn.prop('disabled', true);
+        btn.prop('disabled', true);
         axios({
             method: $form.attr('method'),
             url: $form.attr('action'),
@@ -32,7 +34,7 @@ $(document).ready(function(){
     });
 
     // Перестаем отслеживать посты пользователя
-    $('body').on('submit', '#formDestriyFollow', function(e){
+    body.on('submit', '#formDestriyFollow', function(e){
         e.preventDefault();
 
         const $form = $(this);

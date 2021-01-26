@@ -2,6 +2,8 @@
 
 @push('scripts')
     <script src="{{ asset('js/users_control/edit.js') }}"></script>
+    <link rel="stylesheet" href="https://unpkg.com/js-datepicker/dist/datepicker.min.css">
+    <script src="https://unpkg.com/js-datepicker"></script>
 @endpush
 
 @section('content')
@@ -70,7 +72,7 @@
                                 <div class="tab-content">
                                     <div class="tab-pane" id="activity">
                                         @foreach($userPosts as $post)
-                                            {{ view('blog.post.post_list_item', compact('post', 'tags_to_post')) }}
+                                            {{ view('blog.post.post_list_item', compact('post')) }}
                                         @endforeach
 
                                         <hr>
@@ -118,7 +120,13 @@
                                                 <li class="list-group-item">
                                                     <strong>Дата рождения</strong>
                                                     <a class="float-right col-md-10">
-                                                        <input type="text" class="form-control" name="birthday" value="{{ $user->birthday }}"/>
+                                                        <input id="inputBirthday"
+                                                               type="text"
+                                                               class="form-control"
+                                                               name="birthday"
+                                                               autocomplete="off"
+                                                               value="{{ optional($user->birthday)->format('d.m.Y') }}"
+                                                        />
                                                     </a>
                                                 </li>
                                                 <li class="list-group-item">

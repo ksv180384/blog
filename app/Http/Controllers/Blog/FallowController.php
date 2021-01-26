@@ -33,20 +33,20 @@ class FallowController extends BaseController
     public function index()
     {
         //
-        $posts = $this->followRepository->getFollowsPostsByUser(\Auth::id(), 10) ?: [];
-        $follows_list = $this->followRepository->getFollowsByUser(\Auth::id()) ?: [];
+        $posts = $this->followRepository->getFollowsPostsByUser(\Auth::id(), 10);
+        $user = \Auth::user();
 
         $title = 'Подписан';
 
         return view('blog.fallow_list', compact(
             'posts',
-            'follows_list',
-            'tags_to_post',
+            'user',
             'title'
         ));
     }
 
     /**
+     * Подписываемся
      * @param FollowRequest $request
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
@@ -67,38 +67,36 @@ class FallowController extends BaseController
         }
 
         $User = User::find($request->to_user_id);
-        $follow_count = $this->followRepository->countFollowToByUser($request->to_user_id);
 
         $follow_check = $Follow;
         return response()->json([
             'message' => 'Теперь вы отслеживаете посты пользователя ' . $User->name . '.',
-            'follow_count' => $follow_count,
+            'follow_count' => $User->followToCount,
             'html' => view('user.profile.btn.btn_follow_remove', compact( 'follow_check'))->render(),
         ]);
     }
 
     /**
-     * @param int $id - идентификатор подписки
+     * Отписываемся от пользователя
+     * @param int $to_user_id - идентификатор пользователя на которого подписаны
      * @return \Illuminate\Http\JsonResponse
      * @throws \Throwable
      */
-    public function destroy($id){
-        $Follow = Follows::find($id);
+    public function destroy($to_user_id){
+        $Follow = Follows::where('to_user_id', $to_user_id)->where('from_user_id', \Auth::id());
 
         // Проверяем подписку, принадлежит ли она текущему пользователю
-        if($Follow->from_user_id != \Auth::user()->id){
-            return response()->json(['message' => 'У вас недостаточно прав.'], 404);
+        if(!$Follow){
+            return response()->json(['message' => 'Неверный пользователь.'], 404);
         }
-        $User = User::find($Follow->to_user_id);
-        $from_user_id = $Follow->from_user_id;
         // Удаляем связь отслеживания постов пользователя
         $Follow->delete();
-        $follow_count = $this->followRepository->countFollowToByUser($from_user_id);
 
-        $user_item = $User;
+        $user_item = User::find($to_user_id);
+
         return response()->json([
-            'message' => 'Вы больше не отслеживаете посты пользователя ' . $User->name . ".",
-            'follow_count' => $follow_count,
+            'message' => 'Вы больше не отслеживаете посты пользователя ' . $user_item->name . '.',
+            'follow_count' => $user_item->followToCount,
             'html' => view('user.profile.btn.btn_follow_add', compact('user_item'))->render(),
         ]);
     }

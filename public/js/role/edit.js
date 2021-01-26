@@ -1,11 +1,12 @@
 $(document).ready(function () {
 
+    const body = $('body');
+
     // Сохраняет данные роли
-    $('body').on('submit', '#formRoleUpdate', function(e){
+    body.on('submit', '#formRoleUpdate', function(e){
         e.preventDefault();
 
         const btn = $('#btnFormRoleUpdate');
-
         const $form = $('#formRoleUpdate');
 
         btn.prop('disabled', true);

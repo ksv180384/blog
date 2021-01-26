@@ -6,6 +6,9 @@ use App\Http\Controllers\Blog\BaseController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PostCreateRequest;
 use App\Http\Requests\PostUpdateRequest;
+use App\Models\Blog\Comment;
+use App\Models\Blog\Follows;
+use App\Models\Blog\Like;
 use App\Models\Blog\Post;
 use App\Models\Blog\PostToTag;
 use App\Models\Blog\Tag;
@@ -20,10 +23,29 @@ use Illuminate\Http\Request;
 class PostController extends BaseController
 {
 
+    /**
+     * @var Post
+     */
     private $postRepository;
+
+    /**
+     * @var Follows
+     */
     private $followRepository;
+
+    /**
+     * @var Tag
+     */
     private $tagRepository;
+
+    /**
+     * @var Like
+     */
     private $likeRepository;
+
+    /**
+     * @var Comment
+     */
     private $commentRepository;
 
     public function __construct()
@@ -63,29 +85,28 @@ class PostController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  Post $post
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Post $post)
+    public function show($id)
     {
         //
         if(!\Auth::user()->can('blog-posts-edit')){
             abort(404, 'У вас недостаточно прав.');
         }
 
-        $count_like = $this->likeRepository->countByPost($post->id);
+        $post = Post::withCount(['comments', 'likes'])->find($id);
+
         $like = \Auth::check() ? $this->likeRepository->getLikeToPostAndUser($post->id, \Auth::id()) : false;
         $comments = $this->commentRepository->getCommentsByPost($post->id);
-        $comments_count = $this->commentRepository->countByPost($post->id);
+
 
         $title = $post->title;
 
         return view('blog.post.adm.show', compact(
             'post',
-            'count_like',
             'like',
             'comments',
-            'comments_count',
             'title'
         ));
     }
@@ -103,7 +124,6 @@ class PostController extends BaseController
             abort(404, 'У вас недостаточно прав.');
         }
 
-        //$post = Post::find($id);
         $tags_list = Tag::all();
 
         $title = $post->title;
@@ -111,7 +131,6 @@ class PostController extends BaseController
         return view('blog.post.adm.edit', compact(
             'post',
             'tags_list',
-            'tags_to_post',
             'title'
         ));
     }
@@ -131,15 +150,9 @@ class PostController extends BaseController
             return response()->json(['message' => 'У вас недостаточно прав.'], 404);
         }
 
-        $img_path = null;
         if($request->has('img')){
-            $img_path = request()
-                ->file('img')
-                ->store('posts');
-        }
-        if($img_path){
+            $img_path = request()->file('img')->store('posts');
             \Storage::delete($post->img);
-        }else{
             $post->img = $img_path;
         }
 
@@ -147,7 +160,7 @@ class PostController extends BaseController
             'title' => $request->input('title'),
             'excerpt' => $request->input('excerpt'),
             'content' => $request->input('content'),
-            'img' => $img_path,
+            'img' => $post->img,
         ];
 
         try {
@@ -156,7 +169,7 @@ class PostController extends BaseController
                 $post->update($post_update);
 
                 // Удаляем теги привязанные к посту
-                PostToTag::deleteTagsByPost($post->id);
+                $post->tags()->detach();
 
                 if ($request->tags) {
                     $tagsToPostList = [];
@@ -209,7 +222,7 @@ class PostController extends BaseController
 
         $date = '<span class="text-danger">неопубликованно</span>';
         if($post->published_at){
-            $date = '<strong>' . $post->published_at->format('H:i') . '</strong>' . $post->published_at->format('d.m.Y');
+            $date = '<strong>' . $post->published_at->format('H:i') . '</strong> ' . $post->published_at->format('d.m.Y');
         }
 
         return response()->json([
