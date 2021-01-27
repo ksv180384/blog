@@ -72,7 +72,7 @@ class UserUpdateReques extends FormRequest
 
         $data = $this->all();
 
-        $data['birthday'] = date('Y-m-d', strtotime($data['birthday']));
+        $data['birthday'] = !empty($data['birthday']) ? date('Y-m-d', strtotime($data['birthday'])) : null;
 
 
         $this->getInputSource()->replace($data);

@@ -81,4 +81,28 @@ Route::group(['namespace' => 'Blog', 'prefix' => 'blog'], function (){
     });
 });
 
+//Clear Cache facade value:
+Route::get('/clear-cache', function() {
+    $exitCode = Artisan::call('cache:clear');
+    return '<h1>Cache facade value cleared</h1>';
+});
+
+//Clear View cache:
+Route::get('/view-clear', function() {
+    $exitCode = Artisan::call('view:clear');
+    return '<h1>View cache cleared</h1>';
+});
+
+//Clear Config cache:
+Route::get('/config-cache', function() {
+    $exitCode = Artisan::call('config:cache');
+    return '<h1>Clear Config cleared</h1>';
+});
+
+//Create storage link
+Route::get('/storage-link', function() {
+    $exitCode = Artisan::call('storage:link');
+    return '<h1>Create storage link</h1>';
+});
+
 
