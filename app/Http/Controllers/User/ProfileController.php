@@ -60,7 +60,10 @@ class ProfileController extends BaseController
     public function show($id)
     {
         $user_item = User::findOrFail($id);
-        $posts = $user_item->posts()->with(['user', 'tags', 'commentsCount', 'likesCount', 'checkUserLike'])->paginate(10);
+        $posts = $user_item->posts()
+            ->withCount(['comments', 'likes'])
+            ->with(['user', 'tags', 'checkUserLike'])
+            ->paginate(10);
 
         $follow_check = [];
         if(\Auth::check()){

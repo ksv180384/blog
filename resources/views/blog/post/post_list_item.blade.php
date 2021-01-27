@@ -10,7 +10,12 @@
             @endif
         </span>
         <span class="description">
-            <a href="{{ route('profile.show', $post->user->id) }}" class="link-black" title="Автор">{{ $post->user->name }}</a> |
+            @if(Auth::check())
+                <a href="{{ route('profile.show', $post->user->id) }}" class="link-black" title="Автор">{{ $post->user->name }}</a>
+            @else
+                {{ $post->user->name }}
+            @endif
+            |
 
             <span title="Время публикации">
                 @if($post->published_at)
