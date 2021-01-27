@@ -91,8 +91,8 @@
                                 <td><a href="{{ route('user.show', $userItem->id) }}">{{ $userItem->email }}</a></td>
                                 <td>{{ $userItem->name }}</td>
                                 <td>{{ $userItem->role[0]->name }}</td>
-                                <td>{{ $userItem->created_at->format('H:i d.m.Y') }}</td>
-                                <td>{{ $userItem->email_verified_at->format('H:i d.m.Y') }}</td>
+                                <td>{{ optional($userItem->created_at)->format('H:i d.m.Y') }}</td>
+                                <td>{{ optional($userItem->email_verified_at)->format('H:i d.m.Y') }}</td>
                             </tr>
                         @endforeach
                         </tbody>
