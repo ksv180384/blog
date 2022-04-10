@@ -25,6 +25,10 @@ class PostRepository extends CoreRepository
      * @param $id - идентификатор пользователя
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
+    /**
+     * @param $id
+     * @return Post
+     */
     public function getPost($id){
         $posts = $this->startConditions()
             ->with(['comments.user'])
@@ -53,7 +57,7 @@ class PostRepository extends CoreRepository
     /**
      * Получает список постов для страницы со списком постов. Не включет в себя полную статью (content)
      * @param int $paginate - количествл получаемых записей
-     * @return \Illuminate\Support\Collection
+     * @return LengthAwarePaginator
      */
     public function getPreviewPostsListAdm($paginate = 10){
         $posts = $this->startConditions()
@@ -68,7 +72,7 @@ class PostRepository extends CoreRepository
      * Получает список постов определенного ползователя для страницы со списком постов. Не включет в себя полную статью (content)
      * @param int $user_id - идентификатор пользователя
      * @param int $paginate - количествл получаемых записей
-     * @return \Illuminate\Support\Collection
+     * @return LengthAwarePaginator
      */
     public function getPreviewPostsListByUser($user_id, $paginate = 10){
         $posts = $this->startConditions()
@@ -86,7 +90,7 @@ class PostRepository extends CoreRepository
      * Получаем все посты пользователя включая неопубликованные, сортировка по дате создания
      * @param int $user_id
      * @param int $paginate
-     * @return mixed
+     * @return LengthAwarePaginator
      */
     public function getPreviewPostsListByUserPublishedAll($user_id, $paginate = 10){
         $posts = $this->startConditions()
